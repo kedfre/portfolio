@@ -190,7 +190,7 @@ export default class Shadows
         // Configuration du soleil
         this.sun = {}
         this.sun.position = new THREE.Vector3(- 2.5, - 2.65, 3.75)                     // Position du soleil dans l'espace
-        this.sun.vector = new THREE.Vec3()                                             // Vecteur de projection calculé
+        this.sun.vector = new THREE.Vector3()                                          // Vecteur de projection calculé
         
         // Helper visuel pour le debug
         this.sun.helper = new THREE.ArrowHelper(
