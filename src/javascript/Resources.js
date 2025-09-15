@@ -1,3 +1,36 @@
+/**
+ * RESOURCES.JS - Gestionnaire d'Assets
+ * 
+ * Ce fichier gère le chargement et la gestion de tous les assets du portfolio.
+ * Il utilise un système de chargement intelligent avec support de multiples formats.
+ * 
+ * RESPONSABILITÉS :
+ * - Chargement de 225+ assets (modèles 3D, textures, sons)
+ * - Gestion des différents formats (GLB, PNG, WebP, etc.)
+ * - Compression Draco pour optimiser la taille
+ * - Événements de progression et de fin de chargement
+ * - Création automatique des textures Three.js
+ * 
+ * TYPES D'ASSETS GÉRÉS :
+ * - Matcaps : 13 textures de matériau pour les objets
+ * - Modèles 3D : Fichiers GLB avec compression Draco
+ * - Textures : Images PNG/WebP pour les sols et interfaces
+ * - Collisions : Modèles simplifiés pour la physique
+ * - Sons : Fichiers audio pour les effets
+ * 
+ * ARCHITECTURE :
+ * - EventEmitter : Communication via événements
+ * - Loader : Chargeur universel pour différents formats
+ * - Items : Stockage des assets chargés
+ * - Progress : Suivi du chargement en temps réel
+ * 
+ * OPTIMISATIONS :
+ * - Compression Draco pour réduire la taille des modèles
+ * - Chargement asynchrone pour éviter le blocage
+ * - Gestion d'erreurs avec fallbacks
+ * - Création automatique des textures Three.js
+ */
+
 import * as THREE from 'three'
 
 import Loader from './Utils/Loader.js'
@@ -12,8 +45,10 @@ export default class Resources extends EventEmitter
         this.loader = new Loader()
         this.items = {}
 
+        // Chargement de tous les assets du portfolio (225+ fichiers)
         this.loader.load([
-            // Matcaps
+            // MATCAPS - Textures de matériau pour les objets 3D
+            // Ces textures définissent l'apparence des matériaux sans éclairage
             { name: 'matcapBeige', source: './models/matcaps/beige.png', type: 'texture' },
             { name: 'matcapBlack', source: './models/matcaps/black.png', type: 'texture' },
             { name: 'matcapOrange', source: './models/matcaps/orange.png', type: 'texture' },
@@ -27,7 +62,7 @@ export default class Resources extends EventEmitter
             { name: 'matcapBlue', source: './models/matcaps/blue.png', type: 'texture' },
             { name: 'matcapYellow', source: './models/matcaps/yellow.png', type: 'texture' },
             { name: 'matcapMetal', source: './models/matcaps/metal.png', type: 'texture' },
-            // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' },
+            // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' }, // Commenté
 
             // Intro
             { name: 'introStaticBase', source: './models/intro/static/base.glb' },
@@ -224,26 +259,31 @@ export default class Resources extends EventEmitter
             // { name: 'eggCollision', source: './models/egg/collision.glb' },
         ])
 
+        // Événement : fin de chargement d'un fichier
         this.loader.on('fileEnd', (_resource, _data) =>
         {
+            // Stockage de l'asset chargé
             this.items[_resource.name] = _data
 
-            // Texture
+            // Traitement spécial pour les textures
             if(_resource.type === 'texture')
             {
+                // Création automatique de la texture Three.js
                 const texture = new THREE.Texture(_data)
-                texture.needsUpdate = true
+                texture.needsUpdate = true // Force la mise à jour de la texture
 
+                // Stockage avec suffixe "Texture" pour différencier
                 this.items[`${_resource.name}Texture`] = texture
             }
 
-            // Trigger progress
+            // Émission de l'événement de progression (0-1)
             this.trigger('progress', [this.loader.loaded / this.loader.toLoad])
         })
 
+        // Événement : fin de chargement de tous les assets
         this.loader.on('end', () =>
         {
-            // Trigger ready
+            // Émission de l'événement "ready" - tous les assets sont chargés
             this.trigger('ready')
         })
     }

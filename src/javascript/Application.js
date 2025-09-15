@@ -1,3 +1,36 @@
+/**
+ * APPLICATION.JS - Contrôleur Principal du Portfolio 3D
+ * 
+ * Ce fichier est le cœur de l'application qui orchestre tous les composants.
+ * Il suit le pattern MVC en tant que contrôleur central.
+ * 
+ * RESPONSABILITÉS :
+ * - Initialisation et coordination de tous les composants
+ * - Configuration intelligente (debug, touch, cyberTruck)
+ * - Gestion du rendu avec post-processing
+ * - Animation du titre de la page
+ * - Interface promotionnelle Three.js Journey
+ * 
+ * ARCHITECTURE :
+ * - Pattern MVC : Application = Contrôleur
+ * - Event-driven : Communication via événements
+ * - Modularité : Chaque composant est autonome
+ * - Configuration : Support debug et modes spéciaux
+ * 
+ * COMPOSANTS GÉRÉS :
+ * - Time : Gestion du temps et animations
+ * - Sizes : Gestion des dimensions viewport
+ * - Resources : Chargement des assets (225+ fichiers)
+ * - Camera : Système de caméra avancé
+ * - World : Environnement 3D principal
+ * - Post-processing : Effets visuels (blur, glows)
+ * 
+ * OPTIMISATIONS :
+ * - Matrix auto-update désactivé sur les objets statiques
+ * - Post-processing conditionnel selon le mode tactile
+ * - Gestion intelligente des événements de redimensionnement
+ */
+
 import * as THREE from 'three'
 import * as dat from 'dat.gui'
 
@@ -17,52 +50,84 @@ import GlowsPass from './Passes/Glows.js'
 export default class Application
 {
     /**
-     * Constructor
+     * Constructor - Initialisation de l'application
+     * 
+     * @param {Object} _options - Options de configuration
+     * @param {HTMLElement} _options.$canvas - Élément canvas pour le rendu WebGL
+     * 
+     * SÉQUENCE D'INITIALISATION :
+     * 1. Configuration intelligente (debug, touch, cyberTruck)
+     * 2. Interface de debug (dat.GUI)
+     * 3. Renderer WebGL et scène Three.js
+     * 4. Système de caméra avancé
+     * 5. Post-processing (blur, glows)
+     * 6. Monde 3D principal
+     * 7. Animation du titre
+     * 8. Interface promotionnelle
      */
     constructor(_options)
     {
         // Options
         this.$canvas = _options.$canvas
 
-        // Set up
-        this.time = new Time()
-        this.sizes = new Sizes()
-        this.resources = new Resources()
+        // Initialisation des utilitaires de base
+        this.time = new Time()           // Gestion du temps et animations (60 FPS)
+        this.sizes = new Sizes()         // Gestion des dimensions viewport
+        this.resources = new Resources() // Chargement des 225+ assets
 
-        this.setConfig()
-        this.setDebug()
-        this.setRenderer()
-        this.setCamera()
-        this.setPasses()
-        this.setWorld()
-        this.setTitle()
-        this.setThreejsJourney()
+        // Configuration et setup des composants
+        this.setConfig()        // Configuration intelligente (debug, touch, etc.)
+        this.setDebug()         // Interface de debug avec dat.GUI
+        this.setRenderer()      // WebGL Renderer et Scene Three.js
+        this.setCamera()        // Caméra et contrôles de navigation
+        this.setPasses()        // Post-processing (blur, glows)
+        this.setWorld()         // Monde 3D principal
+        this.setTitle()         // Animation du titre de la page
+        this.setThreejsJourney() // Interface promotionnelle
     }
 
     /**
-     * Set config
+     * setConfig - Configuration intelligente de l'application
+     * 
+     * Détecte automatiquement le mode de fonctionnement :
+     * - Mode debug : URL avec #debug
+     * - Mode CyberTruck : URL avec #cybertruck
+     * - Mode tactile : Détection automatique au premier touch
+     * 
+     * OPTIMISATIONS MOBILE :
+     * - Désactive les effets de flou sur mobile (performance)
+     * - Active les contrôles tactiles adaptés
      */
     setConfig()
     {
         this.config = {}
-        this.config.debug = window.location.hash === '#debug'
-        this.config.cyberTruck = window.location.hash === '#cybertruck'
-        this.config.touch = false
+        
+        // Détection des modes spéciaux via URL hash
+        this.config.debug = window.location.hash === '#debug'        // Mode debug avec dat.GUI
+        this.config.cyberTruck = window.location.hash === '#cybertruck' // Mode véhicule alternatif
+        this.config.touch = false                                    // Détection tactile
 
+        // Détection tactile avec adaptation automatique
         window.addEventListener('touchstart', () =>
         {
             this.config.touch = true
-            this.world.controls.setTouch()
+            this.world.controls.setTouch() // Active les contrôles tactiles
 
+            // Optimisation mobile : désactive les effets de flou
             this.passes.horizontalBlurPass.strength = 1
             this.passes.horizontalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(this.passes.horizontalBlurPass.strength, 0)
             this.passes.verticalBlurPass.strength = 1
             this.passes.verticalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(0, this.passes.verticalBlurPass.strength)
-        }, { once: true })
+        }, { once: true }) // Une seule fois pour éviter les répétitions
     }
 
     /**
-     * Set debug
+     * setDebug - Initialisation de l'interface de debug
+     * 
+     * Crée l'interface dat.GUI pour le debug en mode développement.
+     * L'interface permet de contrôler les paramètres en temps réel.
+     * 
+     * @note Ne s'active que si config.debug = true (URL avec #debug)
      */
     setDebug()
     {
@@ -73,27 +138,35 @@ export default class Application
     }
 
     /**
-     * Set renderer
+     * setRenderer - Configuration du renderer WebGL et de la scène
+     * 
+     * Initialise le renderer WebGL avec optimisations de performance :
+     * - Pixel ratio fixe à 2 pour la qualité
+     * - Fond noir pour l'effet de révélation
+     * - Auto-clear désactivé pour le post-processing
+     * - Gestion automatique du redimensionnement
      */
     setRenderer()
     {
-        // Scene
+        // Scène Three.js principale
         this.scene = new THREE.Scene()
 
-        // Renderer
+        // Renderer WebGL optimisé
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.$canvas,
-            alpha: true,
-            powerPreference: 'high-performance'
+            alpha: true,                    // Transparence pour l'effet de révélation
+            powerPreference: 'high-performance' // Optimisation GPU
         })
-        // this.renderer.setClearColor(0x414141, 1)
-        this.renderer.setClearColor(0x000000, 1)
-        // this.renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio, 1.5), 2))
-        this.renderer.setPixelRatio(2)
+        
+        // Configuration visuelle
+        // this.renderer.setClearColor(0x414141, 1) // Couleur alternative (commentée)
+        this.renderer.setClearColor(0x000000, 1)    // Fond noir pour l'effet de révélation
+        // this.renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio, 1.5), 2)) // Ratio adaptatif (commenté)
+        this.renderer.setPixelRatio(2)               // Ratio fixe pour la qualité
         this.renderer.setSize(this.sizes.viewport.width, this.sizes.viewport.height)
-        this.renderer.autoClear = false
+        this.renderer.autoClear = false              // Désactivé pour le post-processing
 
-        // Resize event
+        // Gestion du redimensionnement
         this.sizes.on('resize', () =>
         {
             this.renderer.setSize(this.sizes.viewport.width, this.sizes.viewport.height)
@@ -101,10 +174,15 @@ export default class Application
     }
 
     /**
-     * Set camera
+     * setCamera - Initialisation du système de caméra
+     * 
+     * Crée et configure la caméra avec suivi automatique de la voiture.
+     * La caméra suit la position de la voiture en temps réel pour un effet
+     * de caméra dynamique et immersive.
      */
     setCamera()
     {
+        // Création de la caméra avec toutes les dépendances
         this.camera = new Camera({
             time: this.time,
             sizes: this.sizes,
@@ -113,45 +191,63 @@ export default class Application
             config: this.config
         })
 
+        // Ajout de la caméra à la scène
         this.scene.add(this.camera.container)
 
+        // Suivi automatique de la voiture
         this.time.on('tick', () =>
         {
             if(this.world && this.world.car)
             {
+                // Mise à jour de la cible de la caméra selon la position de la voiture
                 this.camera.target.x = this.world.car.chassis.object.position.x
                 this.camera.target.y = this.world.car.chassis.object.position.y
             }
         })
     }
 
+    /**
+     * setPasses - Configuration du post-processing
+     * 
+     * Configure la chaîne de rendu avec des effets visuels :
+     * - RenderPass : Rendu de base de la scène
+     * - BlurPass : Effets de flou horizontal et vertical
+     * - GlowsPass : Effets de lueur radiale
+     * 
+     * OPTIMISATIONS MOBILE :
+     * - Désactive les effets de flou sur mobile (performance)
+     * - Interface de debug pour ajuster les paramètres
+     */
     setPasses()
     {
         this.passes = {}
 
-        // Debug
+        // Interface de debug pour le post-processing
         if(this.debug)
         {
             this.passes.debugFolder = this.debug.addFolder('postprocess')
             // this.passes.debugFolder.open()
         }
 
+        // EffectComposer pour la chaîne de rendu
         this.passes.composer = new EffectComposer(this.renderer)
 
-        // Create passes
+        // Passes de rendu
         this.passes.renderPass = new RenderPass(this.scene, this.camera.instance)
 
+        // Passes de flou horizontal
         this.passes.horizontalBlurPass = new ShaderPass(BlurPass)
-        this.passes.horizontalBlurPass.strength = this.config.touch ? 0 : 1
+        this.passes.horizontalBlurPass.strength = this.config.touch ? 0 : 1 // Désactivé sur mobile
         this.passes.horizontalBlurPass.material.uniforms.uResolution.value = new THREE.Vector2(this.sizes.viewport.width, this.sizes.viewport.height)
         this.passes.horizontalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(this.passes.horizontalBlurPass.strength, 0)
 
+        // Passes de flou vertical
         this.passes.verticalBlurPass = new ShaderPass(BlurPass)
-        this.passes.verticalBlurPass.strength = this.config.touch ? 0 : 1
+        this.passes.verticalBlurPass.strength = this.config.touch ? 0 : 1 // Désactivé sur mobile
         this.passes.verticalBlurPass.material.uniforms.uResolution.value = new THREE.Vector2(this.sizes.viewport.width, this.sizes.viewport.height)
         this.passes.verticalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(0, this.passes.verticalBlurPass.strength)
 
-        // Debug
+        // Interface de debug pour les effets de flou
         if(this.debug)
         {
             const folder = this.passes.debugFolder.addFolder('blur')
@@ -161,6 +257,7 @@ export default class Application
             folder.add(this.passes.verticalBlurPass.material.uniforms.uStrength.value, 'y').step(0.001).min(0).max(10)
         }
 
+        // Configuration des effets de lueur
         this.passes.glowsPass = new ShaderPass(GlowsPass)
         this.passes.glowsPass.color = '#ffcfe0'
         this.passes.glowsPass.material.uniforms.uPosition.value = new THREE.Vector2(0, 0.25)
@@ -169,7 +266,7 @@ export default class Application
         this.passes.glowsPass.material.uniforms.uColor.value.convertLinearToSRGB()
         this.passes.glowsPass.material.uniforms.uAlpha.value = 0.55
 
-        // Debug
+        // Interface de debug pour les effets de lueur
         if(this.debug)
         {
             const folder = this.passes.debugFolder.addFolder('glows')
@@ -185,29 +282,33 @@ export default class Application
             folder.add(this.passes.glowsPass.material.uniforms.uAlpha, 'value').step(0.001).min(0).max(1).name('alpha')
         }
 
-        // Add passes
-        this.passes.composer.addPass(this.passes.renderPass)
-        this.passes.composer.addPass(this.passes.horizontalBlurPass)
-        this.passes.composer.addPass(this.passes.verticalBlurPass)
-        this.passes.composer.addPass(this.passes.glowsPass)
+        // Assemblage de la chaîne de rendu (ordre important)
+        this.passes.composer.addPass(this.passes.renderPass)        // 1. Rendu de base
+        this.passes.composer.addPass(this.passes.horizontalBlurPass) // 2. Flou horizontal
+        this.passes.composer.addPass(this.passes.verticalBlurPass)   // 3. Flou vertical
+        this.passes.composer.addPass(this.passes.glowsPass)          // 4. Effets de lueur
 
-        // Time tick
+        // Boucle de rendu principale
         this.time.on('tick', () =>
         {
+            // Activation conditionnelle des passes de flou
             this.passes.horizontalBlurPass.enabled = this.passes.horizontalBlurPass.material.uniforms.uStrength.value.x > 0
             this.passes.verticalBlurPass.enabled = this.passes.verticalBlurPass.material.uniforms.uStrength.value.y > 0
 
-            // Renderer
+            // Rendu final avec post-processing
             this.passes.composer.render()
-            // this.renderer.domElement.style.background = 'black'
-            // this.renderer.render(this.scene, this.camera.instance)
+            // this.renderer.domElement.style.background = 'black' // Alternative (commentée)
+            // this.renderer.render(this.scene, this.camera.instance) // Rendu direct (commenté)
         })
 
-        // Resize event
+        // Gestion du redimensionnement pour le post-processing
         this.sizes.on('resize', () =>
         {
+            // Mise à jour des dimensions du renderer et du composer
             this.renderer.setSize(this.sizes.viewport.width, this.sizes.viewport.height)
             this.passes.composer.setSize(this.sizes.viewport.width, this.sizes.viewport.height)
+            
+            // Mise à jour des résolutions des shaders de flou
             this.passes.horizontalBlurPass.material.uniforms.uResolution.value.x = this.sizes.viewport.width
             this.passes.horizontalBlurPass.material.uniforms.uResolution.value.y = this.sizes.viewport.height
             this.passes.verticalBlurPass.material.uniforms.uResolution.value.x = this.sizes.viewport.width
@@ -216,10 +317,18 @@ export default class Application
     }
 
     /**
-     * Set world
+     * setWorld - Initialisation du monde 3D principal
+     * 
+     * Crée l'environnement 3D complet avec tous les objets, la physique,
+     * les contrôles et les sections interactives. Le monde contient :
+     * - La voiture et ses contrôles
+     * - Les sections (Intro, Crossroads, Projects, Information, Playground)
+     * - La physique avec Cannon.js
+     * - Les sons et effets
      */
     setWorld()
     {
+        // Création du monde avec toutes les dépendances
         this.world = new World({
             config: this.config,
             debug: this.debug,
@@ -231,27 +340,42 @@ export default class Application
             renderer: this.renderer,
             passes: this.passes
         })
+        
+        // Ajout du monde à la scène
         this.scene.add(this.world.container)
     }
 
     /**
-     * Set title
+     * setTitle - Animation du titre de la page
+     * 
+     * Crée une animation du titre avec une voiture qui suit la position réelle
+     * de la voiture dans le monde 3D. Le titre affiche une barre de progression
+     * avec une voiture qui se déplace selon la vitesse de la voiture.
+     * 
+     * FONCTIONNALITÉS :
+     * - Suit la vitesse de la voiture en temps réel
+     * - Animation fluide avec mise à jour toutes les 300ms
+     * - Barre de progression visuelle dans le titre
+     * - Emoji de voiture qui se déplace
      */
     setTitle()
     {
         this.title = {}
-        this.title.frequency = 300
-        this.title.width = 20
-        this.title.position = 0
+        this.title.frequency = 300        // Fréquence de mise à jour (ms)
+        this.title.width = 20            // Largeur de la barre de progression
+        this.title.position = 0          // Position actuelle de la voiture
         this.title.$element = document.querySelector('title')
-        this.title.absolutePosition = Math.round(this.title.width * 0.25)
+        this.title.absolutePosition = Math.round(this.title.width * 0.25) // Position initiale
 
+        // Mise à jour de la position selon la vitesse de la voiture
         this.time.on('tick', () =>
         {
             if(this.world.physics)
             {
+                // Accumulation de la position selon la vitesse
                 this.title.absolutePosition += this.world.physics.car.forwardSpeed
 
+                // Limitation de la position minimale
                 if(this.title.absolutePosition < 0)
                 {
                     this.title.absolutePosition = 0
@@ -259,16 +383,23 @@ export default class Application
             }
         })
 
+        // Mise à jour périodique du titre
         window.setInterval(() =>
         {
+            // Calcul de la position relative dans la barre
             this.title.position = Math.round(this.title.absolutePosition % this.title.width)
 
+            // Création du titre avec barre de progression
             document.title = `${'_'.repeat(this.title.width - this.title.position)}🚗${'_'.repeat(this.title.position)}`
         }, this.title.frequency)
     }
 
     /**
-     * Set Three.js Journey
+     * setThreejsJourney - Initialisation de l'interface promotionnelle
+     * 
+     * Crée l'interface promotionnelle qui apparaît après une certaine distance
+     * parcourue par la voiture. Cette interface propose d'en savoir plus sur
+     * Three.js Journey, le cours de Bruno Simon.
      */
     setThreejsJourney()
     {
@@ -280,13 +411,21 @@ export default class Application
     }
 
     /**
-     * Destructor
+     * destructor - Nettoyage des ressources
+     * 
+     * Libère toutes les ressources utilisées par l'application :
+     * - Désabonnement des événements
+     * - Libération des contrôles de caméra
+     * - Nettoyage du renderer WebGL
+     * - Destruction de l'interface de debug
      */
     destructor()
     {
+        // Désabonnement des événements
         this.time.off('tick')
         this.sizes.off('resize')
 
+        // Libération des ressources
         this.camera.orbitControls.dispose()
         this.renderer.dispose()
         this.debug.destroy()
