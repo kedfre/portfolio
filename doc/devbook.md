@@ -30,13 +30,17 @@ Ce projet est basé sur le portfolio 3D interactif de Bruno Simon (folio-2019) e
 - Gestion intelligente des dimensions et du temps
 - Interface de debug intégrée avec dat.GUI
 
-**Documentation créée :** [Analyse du Code Source](analyse-code-source.md)
+**Documentation créée :** 
+- [Analyse du Code Source](analyse-code-source.md)
+- [Documentation des Shaders Matcap](shaders-matcap.md)
 
 **Commentaires ajoutés :** 
 - Application.js : Architecture MVC et orchestration
 - Camera.js : Système de caméra avancé avec raycasting
 - Resources.js : Gestionnaire d'assets (225+ fichiers)
 - ThreejsJourney.js : Interface promotionnelle intelligente
+- fragment.glsl (matcap) : Shader Matcap avec éclairage indirect personnalisé
+- vertex.glsl (matcap) : Shader vertex avec système de révélation progressive
 
 ## Phase 2 : Personnalisation du Contenu
 - [ ] Remplacer les informations personnelles de Bruno Simon

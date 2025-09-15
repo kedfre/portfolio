@@ -34,12 +34,15 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/spec/v2.0.0.
 - **Controls.js** : Documentation complète du système de contrôles avec joystick analogique, boutons tactiles (boost, forward, brake, backward) et gestion des événements tactiles
 - **EasterEggs.js** : Documentation complète des œufs de Pâques avec codes de réduction, système de collision et interface utilisateur
 - **Floor.js** : Documentation du système de sol avec dégradé de couleurs et matériau shader personnalisé
+- **fragment.glsl (matcap)** : Commentaires détaillés du shader Matcap avec éclairage indirect personnalisé
+- **vertex.glsl (matcap)** : Commentaires détaillés du shader vertex avec système de révélation progressive
 
 ### Documentation
 - Commentaires JSDoc pour toutes les méthodes principales
 - Explications des patterns et optimisations utilisés
 - Guide de compréhension de l'architecture modulaire
 - Documentation des fonctionnalités avancées (post-processing, raycasting, etc.)
+- [Documentation des Shaders Matcap](doc/shaders-matcap.md) : Guide complet du système de rendu Matcap avec éclairage indirect et révélation progressive
 
 ### Détails Techniques
 - **Camera.js** : Système de pan avec raycasting, zoom tactile, angles prédéfinis

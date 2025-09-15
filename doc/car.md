@@ -657,5 +657,7 @@ Le système de véhicule de ce portfolio 3D est un exemple complexe d'intégrati
 - **Ombres réalistes** avec projection solaire
 - **Contrôles intuitifs** clavier et tactile
 - **Effets visuels** et fonctionnalités spéciales
+- **Cybertruck**  ajouter /#cybertruck à l'URL
 
 Cette architecture modulaire permet une maintenance facile et des extensions futures, tout en offrant une expérience utilisateur immersive et réaliste.
+
