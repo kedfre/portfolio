@@ -575,3 +575,252 @@ Le Matcap est une technique **révolutionnaire** qui permet de créer des matér
 
 ---
 
+## Application du Matcap dans le Portfolio - Système de Parsing Intelligent
+
+### Comment le Matcap est appliqué aux objets 🎯
+
+Le Matcap n'est **PAS appliqué à tous les objets**, mais seulement à ceux qui respectent une **convention de nommage spécifique**. C'est un système intelligent et automatique qui permet de contrôler précisément quels objets reçoivent quels matériaux.
+
+### Système de Parsing Intelligent
+
+```javascript
+// Dans Objects.js - Parser pour les matériaux matcap
+{
+    regex: /^shade([a-z]+)_?[0-9]{0,3}?/i,  // Regex pour identifier les objets matcap
+    apply: (_mesh, _options) => {
+        // Extraction du nom du matériau depuis le nom de l'objet
+        const match = _mesh.name.match(/^shade([a-z]+)_?[0-9]{0,3}?/i)
+        const materialName = `${match[1].substring(0, 1).toLowerCase()}${match[1].substring(1)}`
+        let material = this.materials.shades.items[materialName]
+        
+        // Application du matériau matcap
+        mesh.material = material
+    }
+}
+```
+
+### Convention de Nommage
+
+Pour qu'un objet reçoive un matériau Matcap, son nom doit commencer par **`shade`** suivi du nom de la couleur :
+
+```javascript
+// Exemples de noms d'objets qui recevront des Matcaps :
+- "shadeWhite"     → Matériau matcap blanc
+- "shadeRed"       → Matériau matcap rouge  
+- "shadeMetal"     → Matériau matcap métal
+- "shadeBlue_01"   → Matériau matcap bleu
+- "shadeGreen_123" → Matériau matcap vert
+```
+
+### Matériaux Matcap Disponibles
+
+Le système crée **13 matériaux matcap différents** dans `Materials.js` :
+
+```javascript
+// Matériaux matcap créés automatiquement :
+this.shades.items = {
+    white: new MatcapMaterial(),        // Matcap blanc
+    orange: new MatcapMaterial(),       // Matcap orange
+    green: new MatcapMaterial(),        // Matcap vert
+    brown: new MatcapMaterial(),        // Matcap marron
+    gray: new MatcapMaterial(),         // Matcap gris
+    beige: new MatcapMaterial(),        // Matcap beige
+    red: new MatcapMaterial(),          // Matcap rouge
+    black: new MatcapMaterial(),        // Matcap noir
+    emeraldGreen: new MatcapMaterial(), // Matcap vert émeraude
+    purple: new MatcapMaterial(),       // Matcap violet
+    blue: new MatcapMaterial(),         // Matcap bleu
+    yellow: new MatcapMaterial(),       // Matcap jaune
+    metal: new MatcapMaterial()         // Matcap métal
+}
+```
+
+### Processus d'Application
+
+1. **Chargement des objets** : Les objets 3D sont chargés depuis le fichier `.glb`
+2. **Parsing automatique** : Le système analyse le nom de chaque objet
+3. **Détection Matcap** : Si le nom commence par `shade`, l'objet est marqué pour recevoir un Matcap
+4. **Extraction du matériau** : Le nom de la couleur est extrait (`shadeRed` → `red`)
+5. **Application** : Le matériau matcap correspondant est appliqué à l'objet
+
+### Autres Types d'Objets
+
+Les objets qui **ne commencent pas par `shade`** reçoivent d'autres types de matériaux :
+
+```javascript
+// Parser pour les matériaux purs (pure*)
+{
+    regex: /^pure([a-z]+)_?[0-9]{0,3}?/i,
+    // → Matériaux de couleur pure (sans texture)
+}
+
+// Parser pour les sols (floor*)
+{
+    regex: /^floor/i,
+    // → Matériau de sol avec ombres
+}
+
+// Objets par défaut
+// → Matériau blanc standard
+```
+
+### Uniforms Partagés
+
+Tous les matériaux matcap partagent les **mêmes uniforms** pour l'éclairage indirect :
+
+```javascript
+// Uniforms partagés entre tous les matériaux matcap
+this.shades.uniforms = {
+    uRevealProgress: 0,                    // Animation de révélation
+    uIndirectDistanceAmplitude: 1.75,     // Effet de distance
+    uIndirectDistanceStrength: 0.5,       // Force de distance
+    uIndirectDistancePower: 2.0,          // Puissance de distance
+    uIndirectAngleStrength: 1.5,          // Force d'angle
+    uIndirectAngleOffset: 0.6,            // Décalage d'angle
+    uIndirectAnglePower: 1.0,             // Puissance d'angle
+    uIndirectColor: '#d04500'             // Couleur indirecte
+}
+```
+
+### Résumé du Système
+
+**Le Matcap est appliqué de manière sélective** :
+
+- ✅ **Objets avec nom `shade*`** → Reçoivent des matériaux matcap
+- ❌ **Objets avec nom `pure*`** → Reçoivent des matériaux de couleur pure
+- ❌ **Objets avec nom `floor*`** → Reçoivent des matériaux de sol
+- ❌ **Autres objets** → Reçoivent des matériaux par défaut
+
+### Avantages de ce Système
+
+- **Automatique** : Pas besoin de coder manuellement chaque objet
+- **Flexible** : Changement de matériau en modifiant juste le nom
+- **Organisé** : Convention claire et cohérente
+- **Performant** : Parsing optimisé et réutilisation des matériaux
+- **Maintenable** : Facile à comprendre et modifier
+
+C'est un système **intelligent et automatique** qui permet de contrôler précisément quels objets reçoivent quels matériaux simplement en nommant correctement les objets dans Blender ! 🚀
+
+---
+
+## Images et Textures Matcap - Le Cœur du Système 🖼️
+
+### **Images Matcap dans le Portfolio**
+
+Oui, des **images de textures** sont absolument essentielles pour les Matcaps. Votre portfolio utilise **13 images PNG** différentes pour créer les matériaux matcap.
+
+### **13 Textures Matcap Chargées**
+
+```javascript
+// Dans Resources.js - Chargement des textures matcap
+{ name: 'matcapBeige', source: './models/matcaps/beige.png', type: 'texture' },
+{ name: 'matcapBlack', source: './models/matcaps/black.png', type: 'texture' },
+{ name: 'matcapOrange', source: './models/matcaps/orange.png', type: 'texture' },
+{ name: 'matcapRed', source: './models/matcaps/red.png', type: 'texture' },
+{ name: 'matcapWhite', source: './models/matcaps/white.png', type: 'texture' },
+{ name: 'matcapGreen', source: './models/matcaps/green.png', type: 'texture' },
+{ name: 'matcapBrown', source: './models/matcaps/brown.png', type: 'texture' },
+{ name: 'matcapGray', source: './models/matcaps/gray.png', type: 'texture' },
+{ name: 'matcapEmeraldGreen', source: './models/matcaps/emeraldGreen.png', type: 'texture' },
+{ name: 'matcapPurple', source: './models/matcaps/purple.png', type: 'texture' },
+{ name: 'matcapBlue', source: './models/matcaps/blue.png', type: 'texture' },
+{ name: 'matcapYellow', source: './models/matcaps/yellow.png', type: 'texture' },
+{ name: 'matcapMetal', source: './models/matcaps/metal.png', type: 'texture' }
+```
+
+### **Fichiers Physiques Présents**
+
+Dans le dossier `static/models/matcaps/`, vous avez **14 images PNG** :
+
+- `beige.png` - Matcap beige
+- `black.png` - Matcap noir  
+- `blue.png` - Matcap bleu
+- `brown.png` - Matcap marron
+- `emeraldGreen.png` - Matcap vert émeraude
+- `gold.png` - Matcap or (non utilisé)
+- `gray.png` - Matcap gris
+- `green.png` - Matcap vert
+- `metal.png` - Matcap métal
+- `orange.png` - Matcap orange
+- `purple.png` - Matcap violet
+- `red.png` - Matcap rouge
+- `white.png` - Matcap blanc
+- `yellow.png` - Matcap jaune
+
+### **Comment les Images sont Utilisées**
+
+#### 1. **Chargement des Textures**
+```javascript
+// Dans Resources.js
+this.loader.load([
+    { name: 'matcapWhite', source: './models/matcaps/white.png', type: 'texture' },
+    // ... autres textures
+])
+```
+
+#### 2. **Assignation aux Matériaux**
+```javascript
+// Dans Materials.js
+this.shades.items.white.uniforms.matcap.value = this.resources.items.matcapWhiteTexture
+this.shades.items.red.uniforms.matcap.value = this.resources.items.matcapRedTexture
+// ... pour chaque matériau
+```
+
+#### 3. **Utilisation dans le Shader**
+```glsl
+// Dans fragment.glsl
+uniform sampler2D matcap;  // La texture matcap
+
+// Échantillonnage de la texture
+vec4 matcapColor = texture2D( matcap, uv );
+
+// Application de la couleur
+vec3 outgoingLight = diffuseColor.rgb * matcapColor.rgb;
+```
+
+### **Qu'est-ce qu'une Image Matcap ?**
+
+#### **Format Typique**
+- **Image carrée** (ex: 512x512 ou 1024x1024 pixels)
+- **Représente une sphère** avec le matériau photographié
+- **Éclairage uniforme** de tous les angles
+- **Format PNG** pour la qualité
+
+#### **Exemple Visuel**
+```
+Image Matcap (beige.png)     →    Objet 3D (résultat)
+┌─────────────────┐                ┌─────────────────┐
+│  🟤 Sphère Beige │                │  🏠 Maison      │
+│  ⚡ Reflets      │    applique    │  avec matériau  │
+│  ✨ Ombres       │    ──────→     │  beige réaliste │
+└─────────────────┘                └─────────────────┘
+```
+
+### **Processus Technique**
+
+#### **1. Chargement**
+- Les images PNG sont chargées par le `Loader`
+- Converties en textures Three.js
+- Stockées dans `this.resources.items`
+
+#### **2. Application**
+- Chaque matériau matcap reçoit sa texture spécifique
+- La texture est assignée à l'uniform `matcap`
+- Le shader utilise cette texture pour le rendu
+
+#### **3. Rendu**
+- Le shader calcule les coordonnées UV basées sur la normale
+- Échantillonne la texture matcap à ces coordonnées
+- Applique la couleur résultante à l'objet
+
+### **Avantages des Images Matcap**
+
+- **Réalisme** : Basé sur de vraies photos de matériaux
+- **Performance** : Une seule texture au lieu de calculs complexes
+- **Flexibilité** : Changement de matériau = changement d'image
+- **Qualité** : Détails fins et reflets photoréalistes
+
+**En résumé** : Les Matcaps utilisent des **images de textures PNG** qui représentent des sphères avec différents matériaux photographiés sous tous les angles. C'est le cœur de la technique Matcap ! 🎯✨
+
+---
+
