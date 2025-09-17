@@ -13,6 +13,12 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/spec/v2.0.0.
 - Nouvelles fonctionnalités interactives
 - Optimisations de performance
 
+### Ajouté
+- Documentation complète du système d'ombres de sol ([floorShadow.md](doc/floorShadow.md))
+- Analyse détaillée des ombres bakées et dynamiques
+- Liste exhaustive des 8 textures d'ombres précalculées
+- Explication de l'architecture hybride du système d'ombres
+
 ## [1.2.0] - 2025-01-27
 
 ### Ajouté

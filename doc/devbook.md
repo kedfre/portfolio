@@ -36,6 +36,7 @@ Ce projet est basé sur le portfolio 3D interactif de Bruno Simon (folio-2019) e
 - [Système de Baking d'Éclairage](baking.md)
 - [Shaders sur la Voiture](shaderCar.md)
 - [Positionnement des Roues](roues.md)
+- [Système d'Ombres de Sol](floorShadow.md)
 
 **Commentaires ajoutés :** 
 - Application.js : Architecture MVC et orchestration
