@@ -34,6 +34,8 @@ Ce projet est basé sur le portfolio 3D interactif de Bruno Simon (folio-2019) e
 - [Analyse du Code Source](analyse-code-source.md)
 - [Documentation des Shaders Matcap](shaders-matcap.md)
 - [Système de Baking d'Éclairage](baking.md)
+- [Shaders sur la Voiture](shaderCar.md)
+- [Positionnement des Roues](roues.md)
 
 **Commentaires ajoutés :** 
 - Application.js : Architecture MVC et orchestration
