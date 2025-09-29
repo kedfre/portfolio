@@ -13,6 +13,22 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/spec/v2.0.0.
 - Nouvelles fonctionnalités interactives
 - Optimisations de performance
 
+## [1.3.1] - 2025-01-27
+
+### Modifié
+- **Feux de freinage** : Amélioration de la visibilité des feux arrière
+  - Opacité par défaut augmentée de 50% à 60% pour une meilleure visibilité
+  - Correction du positionnement des feux Duke Hazzard (décalage vers l'arrière)
+  - Comportement maintenu : freinage et marche arrière à 100% d'opacité
+  - Documentation mise à jour dans [shaderCar.md](doc/shaderCar.md)
+
+### Corrigé
+- **Méthode update manquante** : Ajout de la méthode `update()` à la classe `Car`
+  - Correction de l'erreur `this.car.update is not a function`
+  - Synchronisation de la direction des roues avant
+  - Mise à jour des contrôles de debug
+  - Compatibilité avec le système `CarFactory`
+
 ## [1.3.0] - 2025-01-27
 
 ### Ajouté

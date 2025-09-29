@@ -602,6 +602,9 @@ export default class World
         // Récupération de l'instance de voiture créée par la factory
         this.car = this.carFactory.getCar()
         this.container.add(this.car.container)                                           // Ajout de la voiture au conteneur
+        
+        // Exposer le factory pour l'application
+        this.carFactory = this.carFactory
     }
 
     /**

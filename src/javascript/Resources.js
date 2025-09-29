@@ -65,6 +65,7 @@ export default class Resources extends EventEmitter
             { name: 'matcapBlackMetal', source: './models/matcaps/blackMetal.png', type: 'texture' },
             { name: 'matcapChrome', source: './models/matcaps/chrome.png', type: 'texture' },
             { name: 'matcapGlass', source: './models/matcaps/glass.png', type: 'texture' },
+            { name: 'matcapOrangeDuckHazzard', source: './models/matcaps/orangeDuckHazzard.png', type: 'texture' },
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' }, // Commenté
 
             // Intro

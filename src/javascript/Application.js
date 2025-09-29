@@ -293,9 +293,9 @@ export default class Application
         this.time.on('tick', () =>
         {
             // Mise à jour de la voiture si elle existe
-            if(this.world && this.world.car)
+            if(this.world && this.world.carFactory)
             {
-                this.world.car.update()
+                this.world.carFactory.update()
             }
 
             // Activation conditionnelle des passes de flou

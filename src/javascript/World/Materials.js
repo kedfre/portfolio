@@ -242,6 +242,12 @@ export default class Materials
         this.shades.items.glass.uniforms.matcap.value = this.resources.items.matcapGlassTexture  // Assignation de la texture matcap
         this.items.glass = this.shades.items.glass      
 
+        // Matériau matcap orangeDuckHazzard
+        this.shades.items.orangeDuckHazzard = new MatcapMaterial()                                   // Création du matériau matcap
+        this.shades.items.orangeDuckHazzard.name = 'shadeOrangeDuckHazzard'                                      // Nom pour identification
+        this.shades.items.orangeDuckHazzard.uniforms.matcap.value = this.resources.items.matcapOrangeDuckHazzardTexture  // Assignation de la texture matcap
+        this.items.orangeDuckHazzard = this.shades.items.orangeDuckHazzard
+
         // Matériau matcap or (commenté - non utilisé)
         // this.shades.items.gold = new MatcapMaterial()
         // this.shades.items.gold.name = 'shadeGold'

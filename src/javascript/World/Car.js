@@ -377,7 +377,7 @@ export default class Car
         // Matériau jaune pour les feux de marche arrière
         this.backLightsReverse.material = this.materials.pures.items.yellow.clone()
         this.backLightsReverse.material.transparent = true
-        this.backLightsReverse.material.opacity = 0.5
+        this.backLightsReverse.material.opacity = 0.6
 
         // Création de l'objet 3D des feux de marche arrière
         this.backLightsReverse.object = this.objects.getConvertedMesh(this.models.backLightsReverse.scene.children)
@@ -392,9 +392,9 @@ export default class Car
         this.time.on('tick', () =>
         {
             // Activation des feux de freinage
-            this.backLightsBrake.material.opacity = this.physics.controls.actions.brake ? 1 : 0.5
+            this.backLightsBrake.material.opacity = this.physics.controls.actions.brake ? 1 : 0.6
             // Activation des feux de marche arrière
-            this.backLightsReverse.material.opacity = this.physics.controls.actions.down ? 1 : 0.5
+            this.backLightsReverse.material.opacity = this.physics.controls.actions.down ? 1 : 0.6
         })
     }
 
@@ -592,5 +592,40 @@ export default class Car
                 })
             }
         })
+    }
+
+    /**
+     * Update - Mise à jour de la voiture
+     * 
+     * Met à jour tous les composants de la voiture à chaque frame.
+     * Gère la synchronisation avec la physique, les animations et les effets visuels.
+     */
+    update()
+    {
+        // Mise à jour des contrôles de debug
+        if(this.debug && this.transformControls)
+        {
+            this.transformControls.update()
+        }
+
+        // Direction des roues avant uniquement
+        if(this.wheels && this.wheels.items)
+        {
+            // Utilisation de l'angle de direction de la physique si disponible
+            let steeringAngle = 0
+            if(this.physics && this.physics.car && this.physics.car.steering !== undefined)
+            {
+                steeringAngle = this.physics.car.steering
+            }
+            
+            // Application de la direction aux roues avant uniquement (indices 0 et 1)
+            for(let i = 0; i < 2; i++)
+            {
+                if(this.wheels.items[i] && this.wheels.items[i].object)
+                {
+                    this.wheels.items[i].object.rotation.y = steeringAngle
+                }
+            }
+        }
     }
 }

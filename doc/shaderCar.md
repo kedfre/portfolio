@@ -179,7 +179,7 @@ setBackLights() {
     // Matériau jaune pour les feux de marche arrière
     this.backLightsReverse.material = this.materials.pures.items.yellow.clone()
     this.backLightsReverse.material.transparent = true
-    this.backLightsReverse.material.opacity = 0.5
+    this.backLightsReverse.material.opacity = 0.6
 
     // Création de l'objet 3D des feux de marche arrière
     this.backLightsReverse.object = this.objects.getConvertedMesh(this.models.backLightsReverse.scene.children)
@@ -192,9 +192,9 @@ setBackLights() {
     // Animation des feux selon les actions
     this.time.on('tick', () => {
         // Activation des feux de freinage
-        this.backLightsBrake.material.opacity = this.physics.controls.actions.brake ? 1 : 0.5
+        this.backLightsBrake.material.opacity = this.physics.controls.actions.brake ? 1 : 0.6
         // Activation des feux de marche arrière
-        this.backLightsReverse.material.opacity = this.physics.controls.actions.down ? 1 : 0.5
+        this.backLightsReverse.material.opacity = this.physics.controls.actions.down ? 1 : 0.6
     })
 }
 ```
@@ -204,6 +204,12 @@ setBackLights() {
 - **Transparence** : Opacité variable selon les actions (freinage, marche arrière)
 - **Animation** : Opacité dynamique basée sur les contrôles de la voiture
 - **Application manuelle** : Override du système de parsing pour des matériaux spécifiques
+
+**Comportement des feux (Mise à jour 2024) :**
+- **Opacité par défaut** : 50% (0.5) - Feux toujours visibles en arrière-plan
+- **Freinage** : 100% (1.0) - Feux de freinage à pleine intensité
+- **Marche arrière** : 100% (1.0) - Feux de marche arrière à pleine intensité
+- **Positionnement Duke Hazzard** : Décalage de -0.8 unités vers l'arrière pour éviter l'occlusion
 
 #### D. Roues
 

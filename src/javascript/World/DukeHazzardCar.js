@@ -271,7 +271,7 @@ export default class DukeHazzardCar
         // Matériau rouge pour les feux de freinage
         this.backLights.brake.material = this.materials.pures.items.red.clone()
         this.backLights.brake.material.transparent = true
-        this.backLights.brake.material.opacity = 0.5
+        this.backLights.brake.material.opacity = 0.6
         
         // Création de l'objet 3D des feux de freinage
         this.backLights.brake.object = this.objects.getConvertedMesh(this.models.backLightsBrake.scene.children)
@@ -280,8 +280,9 @@ export default class DukeHazzardCar
             _child.material = this.backLights.brake.material
         }
         
-        this.backLights.brake.object.position.z += 0.8
+        this.backLights.brake.object.position.z -= 0
         this.chassis.object.add(this.backLights.brake.object)
+        
 
         // Configuration des ombres pour les feux de freinage
         this.shadows.add(this.backLights.brake.object, {
@@ -289,11 +290,11 @@ export default class DukeHazzardCar
             cast: true
         })
 
-        // Synchronisation des feux avec la physique (identique à Car.js)
+        // Synchronisation des feux avec la physique
         this.time.on('tick', () =>
         {
-            // Activation des feux de freinage
-            this.backLights.brake.material.opacity = this.physics.controls.actions.brake ? 1 : 0.5
+            // Activation des feux de freinage (freinage OU marche arrière)
+            this.backLights.brake.material.opacity = (this.physics.controls.actions.brake || this.physics.controls.actions.down) ? 1 : 0.6
         })
     }
 
