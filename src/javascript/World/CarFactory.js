@@ -75,7 +75,6 @@ export default class CarFactory
         {
             // Voiture Duke Hazzard
             this.carType = 'dukehazzard'
-            console.log('🏭 CarFactory - Création de Duke Hazzard Car')
             this.car = new DukeHazzardCar(this.options)
         }
         else if(this.options.config.cyberTruck)
@@ -91,8 +90,6 @@ export default class CarFactory
             this.car = new Car(this.options)
         }
 
-        // Log de la voiture créée
-        console.log(`🚗 Voiture créée : ${this.carType}`)
     }
 
     /**

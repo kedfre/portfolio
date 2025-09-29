@@ -299,7 +299,7 @@ export default class Physics
     {
         // Configuration des positions initiales par type de voiture
         const carPositions = {
-            'dukehazzard': { x: 0, y: 0, z: 0 },        // Duke Hazzard au sol
+            'dukehazzard': { x: 0, y: 0, z: 12 },       // Duke Hazzard en hauteur (tombe du haut)
             'cybertruck': { x: 0, y: 0, z: 12 },        // CyberTruck en hauteur
             'default': { x: 0, y: 0, z: 12 }            // Voiture par défaut en hauteur
         }

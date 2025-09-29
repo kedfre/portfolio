@@ -210,9 +210,6 @@ export default class World
 
             // Configuration de la voiture
             this.physics.car.chassis.body.sleep()                                    // Mise en veille du corps physique
-            
-            // La position initiale est déjà gérée par Physics.js
-            console.log(`🚗 ${this.getCarTypeName()} - Position physique initiale:`, this.physics.car.chassis.body.position)
 
             // Réveil de la voiture après un délai
             window.setTimeout(() =>
@@ -565,7 +562,7 @@ export default class World
     {
         // Configuration des positions initiales par type de voiture
         const carPositions = {
-            'dukehazzard': { x: 0, y: 0, z: 0 },        // Duke Hazzard au sol
+            'dukehazzard': { x: 0, y: 0, z: 12 },       // Duke Hazzard en hauteur (tombe du haut)
             'cybertruck': { x: 0, y: 0, z: 12 },        // CyberTruck en hauteur
             'default': { x: 0, y: 0, z: 12 }            // Voiture par défaut en hauteur
         }

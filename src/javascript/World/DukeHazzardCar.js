@@ -72,7 +72,6 @@ export default class DukeHazzardCar
         this.container = new THREE.Object3D()                                          // Conteneur parent pour tous les éléments
         this.position = new THREE.Vector3()                                            // Position globale de la voiture
         
-        console.log('🚗 Duke Hazzard - Conteneur créé:', this.container)
 
         // Configuration de l'interface de debug
         if(this.debug)
@@ -92,12 +91,8 @@ export default class DukeHazzardCar
         this.setKlaxon()                                                              // Configuration du klaxon et effets spéciaux
         this.setDukeHazzardPhysics()                                                  // Configuration de la physique spécifique Duke Hazzard
         
-        console.log('🚗 Duke Hazzard - Constructeur terminé')
-        console.log('🚗 Duke Hazzard - Conteneur enfants:', this.container.children.length)
-        console.log('🚗 Duke Hazzard - Châssis:', this.chassis ? 'OK' : 'MANQUANT')
-        console.log('🚗 Duke Hazzard - Antenne:', this.antena ? 'OK' : 'MANQUANT')
-        console.log('🚗 Duke Hazzard - Feux:', this.backLights ? 'OK' : 'MANQUANT')
-        console.log('🚗 Duke Hazzard - Roues:', this.wheels ? 'OK' : 'MANQUANT')
+        // Ajout du châssis au conteneur principal après configuration de tous les composants enfants
+        this.container.add(this.chassis.object)
     }
 
     /**
@@ -126,12 +121,6 @@ export default class DukeHazzardCar
         this.models.wheelFront = this.resources.items.carDukeHazzardWheelFront
         this.models.wheelRear = this.resources.items.carDukeHazzardWheelRear
 
-        console.log('🚗 Duke Hazzard - Ressources chargées :')
-        console.log('Châssis:', this.models.chassis)
-        console.log('Antenne:', this.models.antenna)
-        console.log('Feux de freinage:', this.models.backLightsBrake)
-        console.log('Roues avant:', this.models.wheelFront)
-        console.log('Roues arrière:', this.models.wheelRear)
     }
 
     /**
@@ -201,7 +190,7 @@ export default class DukeHazzardCar
         this.chassis.object = this.objects.getConvertedMesh(this.models.chassis.scene.children)
         this.chassis.object.position.copy(this.physics.car.chassis.body.position)  // Synchronisation initiale avec la physique
         this.chassis.oldPosition = this.chassis.object.position.clone()            // Sauvegarde pour le calcul de mouvement
-        this.container.add(this.chassis.object)                                    // Ajout au conteneur principal
+        // Note: L'ajout au conteneur principal se fait après la configuration de tous les composants enfants
 
         // Configuration de l'ombre portée du châssis
         this.shadows.add(this.chassis.object, { 
@@ -458,7 +447,6 @@ export default class DukeHazzardCar
      */
     setDukeHazzardPhysics()
     {
-        console.log('🚗 Duke Hazzard - Configuration de la physique spécifique')
         
         // Modification des paramètres de physique pour Duke Hazzard
         if(this.physics && this.physics.car && this.physics.car.options)
@@ -483,14 +471,6 @@ export default class DukeHazzardCar
             this.physics.car.options.wheelSuspensionStiffness = 60                       // Suspension plus rigide
             this.physics.car.options.wheelFrictionSlip = 12                              // Friction avant augmentée
             
-            console.log('🚗 Duke Hazzard - Physique configurée avec paramètres sportifs')
-            console.log('🚗 Duke Hazzard - Accélération:', this.physics.car.options.controlsAcceleratingSpeed)
-            console.log('🚗 Duke Hazzard - Freinage:', this.physics.car.options.controlsBrakeStrength)
-            console.log('🚗 Duke Hazzard - Masse:', this.physics.car.options.chassisMass)
-        }
-        else
-        {
-            console.warn('🚗 Duke Hazzard - Physique non disponible pour configuration')
         }
     }
 
@@ -511,17 +491,6 @@ export default class DukeHazzardCar
         // Direction des roues avant uniquement
         if(this.wheels && this.wheels.items)
         {
-            // Debug des contrôles seulement quand on appuie sur les touches
-            if(this.controls && this.controls.actions && (this.controls.actions.left || this.controls.actions.right))
-            {
-                console.log('🎮 Direction Debug:', {
-                    left: this.controls.actions.left,
-                    right: this.controls.actions.right,
-                    physics: this.physics ? 'OK' : 'MANQUANT',
-                    physicsCar: this.physics && this.physics.car ? 'OK' : 'MANQUANT',
-                    physicsSteering: this.physics && this.physics.car ? this.physics.car.steering : 'N/A'
-                })
-            }
             
             // Utilisation de l'angle de direction de la physique si disponible
             let steeringAngle = 0
