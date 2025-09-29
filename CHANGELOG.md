@@ -13,11 +13,36 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/spec/v2.0.0.
 - Nouvelles fonctionnalités interactives
 - Optimisations de performance
 
+## [1.3.0] - 2025-01-27
+
 ### Ajouté
+- **Voiture Duke Hazzard** : Nouvelle voiture avec caractéristiques uniques
+  - Roues avant et arrière séparées avec propriétés différentes
+  - Paramètres de conduite spécifiques (vitesse, accélération, freinage)
+  - Pas de feux de marche arrière (backLightsReverse)
+  - Comportement de conduite unique
+- **CarFactory.js** : Factory pattern pour la sélection des voitures
+- **DukeHazzardCar.js** : Classe dédiée pour la voiture Duke Hazzard
+- **Configuration #dukehazzard** : Activation via URL hash
+- Documentation complète du système Duke Hazzard ([dukeHazzard.md](doc/dukeHazzard.md))
 - Documentation complète du système d'ombres de sol ([floorShadow.md](doc/floorShadow.md))
 - Analyse détaillée des ombres bakées et dynamiques
 - Liste exhaustive des 8 textures d'ombres précalculées
 - Explication de l'architecture hybride du système d'ombres
+
+### Modifié
+- **Application.js** : Ajout de la détection du mode Duke Hazzard (#dukehazzard)
+- **World/index.js** : Intégration de CarFactory pour la sélection des voitures
+- **Resources.js** : Ajout des ressources Duke Hazzard (chassis, roues avant/arrière, antenne, feux de freinage)
+- **World/Physics.js** : Support des nouvelles voitures avec physique Cannon.js
+- **World/Materials.js** : Ajout de nouveaux matériaux pour Duke Hazzard
+
+### Technique
+- **Architecture** : Pattern Factory pour la sélection des voitures
+- **Voitures** : 3 types supportés (default, cyberTruck, dukeHazzard)
+- **Ressources** : 5 nouveaux modèles 3D Duke Hazzard
+- **Configuration** : Détection automatique via URL hash
+- **Documentation** : Guide complet du système Duke Hazzard
 
 ## [1.2.0] - 2025-01-27
 

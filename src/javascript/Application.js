@@ -105,6 +105,7 @@ export default class Application
         // Détection des modes spéciaux via URL hash
         this.config.debug = window.location.hash === '#debug'        // Mode debug avec dat.GUI
         this.config.cyberTruck = window.location.hash === '#cybertruck' // Mode véhicule alternatif
+        this.config.dukeHazzard = window.location.hash === '#dukehazzard' // Mode véhicule Duke Hazzard
         this.config.touch = false                                    // Détection tactile
 
         // Détection tactile avec adaptation automatique
@@ -291,6 +292,12 @@ export default class Application
         // Boucle de rendu principale
         this.time.on('tick', () =>
         {
+            // Mise à jour de la voiture si elle existe
+            if(this.world && this.world.car)
+            {
+                this.world.car.update()
+            }
+
             // Activation conditionnelle des passes de flou
             this.passes.horizontalBlurPass.enabled = this.passes.horizontalBlurPass.material.uniforms.uStrength.value.x > 0
             this.passes.verticalBlurPass.enabled = this.passes.verticalBlurPass.material.uniforms.uStrength.value.y > 0

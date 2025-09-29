@@ -31,7 +31,9 @@ Application.js
 ├── World/                 # Monde 3D principal
 │   ├── index.js          # Point d'entrée du monde
 │   ├── Areas.js          # Gestion des zones interactives
-│   ├── Car.js            # Véhicule de navigation
+│   ├── Car.js            # Véhicule de navigation par défaut
+│   ├── DukeHazzardCar.js # Voiture Duke Hazzard spéciale
+│   ├── CarFactory.js     # Factory pattern pour les voitures
 │   ├── Controls.js       # Contrôles utilisateur
 │   ├── Physics.js        # Physique du monde
 │   ├── Materials.js      # Matériaux 3D
@@ -151,6 +153,64 @@ const config = {
 - **Vercel** : Optimisé pour les applications Vite
 - **GitHub Pages** : Hébergement statique gratuit
 
+## Système de Voitures Interactives
+
+### Architecture des Voitures
+
+Le portfolio dispose d'un système de voitures modulaire utilisant le pattern Factory pour gérer différents types de véhicules.
+
+#### Types de Voitures Supportées
+
+1. **Voiture par Défaut** (`Car.js`)
+   - Véhicule standard avec toutes les fonctionnalités
+   - Support du mode CyberTruck
+   - Feux avant/arrière complets
+   - Paramètres de conduite standard
+
+2. **Voiture Duke Hazzard** (`DukeHazzardCar.js`)
+   - Caractéristiques uniques spécialisées
+   - Roues avant et arrière séparées
+   - Paramètres de conduite spécifiques
+   - Pas de feux de marche arrière
+   - Comportement de conduite unique
+
+#### CarFactory - Pattern Factory
+
+```javascript
+// Sélection automatique de la voiture
+if(config.dukeHazzard) {
+    car = new DukeHazzardCar(options)
+} else if(config.cyberTruck) {
+    car = new Car(options) // Mode CyberTruck
+} else {
+    car = new Car(options) // Voiture par défaut
+}
+```
+
+#### Configuration des Voitures
+
+- **Activation Duke Hazzard** : `#dukehazzard` dans l'URL
+- **Activation CyberTruck** : `#cybertruck` dans l'URL
+- **Voiture par défaut** : Aucun hash dans l'URL
+
+#### Ressources Duke Hazzard
+
+```javascript
+// Modèles 3D spécifiques
+carDukeHazzardChassis        // Châssis principal
+carDukeHazzardWheelFront     // Roues avant
+carDukeHazzardWheelRear      // Roues arrière
+carDukeHazzardBackLightsBrake // Feux de freinage
+carDukeHazzardAntenna        // Antenne avec physique
+```
+
+### Avantages de l'Architecture
+
+- **Séparation des responsabilités** : Chaque voiture a sa propre logique
+- **Extensibilité** : Facile d'ajouter de nouveaux types de voitures
+- **Performance** : Chargement conditionnel des ressources
+- **Maintenabilité** : Code modulaire et organisé
+
 ## Sécurité
 
 ### Bonnes Pratiques
@@ -189,4 +249,4 @@ const config = {
 
 ---
 *Documentation générée le : $(date)*
-*Version : 1.0.0*
+*Version : 1.3.0*

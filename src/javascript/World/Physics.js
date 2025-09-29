@@ -291,6 +291,28 @@ export default class Physics
     }
 
     /**
+     * GetCarInitialPosition - Obtient la position initiale selon le type de voiture
+     * 
+     * @returns {Object} Position initiale {x, y, z}
+     */
+    getCarInitialPosition()
+    {
+        // Configuration des positions initiales par type de voiture
+        const carPositions = {
+            'dukehazzard': { x: 0, y: 0, z: 0 },        // Duke Hazzard au sol
+            'cybertruck': { x: 0, y: 0, z: 12 },        // CyberTruck en hauteur
+            'default': { x: 0, y: 0, z: 12 }            // Voiture par défaut en hauteur
+        }
+
+        // Détermination du type de voiture
+        let carType = 'default'
+        if(this.config && this.config.dukeHazzard) carType = 'dukehazzard'
+        else if(this.config && this.config.cyberTruck) carType = 'cybertruck'
+
+        return carPositions[carType]
+    }
+
+    /**
      * SetCar - Configuration du système de voiture complet
      *
      * Configure le système de voiture réaliste avec véhicule à roues, incluant
@@ -420,7 +442,9 @@ export default class Physics
             // Corps physique du chassis
             this.car.chassis.body = new CANNON.Body({ mass: this.car.options.chassisMass })
             this.car.chassis.body.allowSleep = false                                      // Pas de sommeil pour le chassis
-            this.car.chassis.body.position.set(0, 0, 12)                                 // Position initiale
+            // Position initiale générique selon le type de voiture
+            const initialPosition = this.getCarInitialPosition()
+            this.car.chassis.body.position.set(initialPosition.x, initialPosition.y, initialPosition.z)
             this.car.chassis.body.sleep()                                                // Mise en sommeil initiale
             this.car.chassis.body.addShape(this.car.chassis.shape, this.car.options.chassisOffset)  // Ajout de la forme
             this.car.chassis.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), - Math.PI * 0.5)  // Rotation initiale

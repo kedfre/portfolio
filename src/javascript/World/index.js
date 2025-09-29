@@ -49,7 +49,7 @@ import Shadows from './Shadows.js'
 import Physics from './Physics.js'
 import Zones from './Zones.js'
 import Objects from './Objects.js'
-import Car from './Car.js'
+import CarFactory from './CarFactory.js'
 import Areas from './Areas.js'
 import Tiles from './Tiles.js'
 import Walls from './Walls.js'
@@ -210,7 +210,9 @@ export default class World
 
             // Configuration de la voiture
             this.physics.car.chassis.body.sleep()                                    // Mise en veille du corps physique
-            this.physics.car.chassis.body.position.set(0, 0, 12)                    // Positionnement initial de la voiture
+            
+            // La position initiale est déjà gérée par Physics.js
+            console.log(`🚗 ${this.getCarTypeName()} - Position physique initiale:`, this.physics.car.chassis.body.position)
 
             // Réveil de la voiture après un délai
             window.setTimeout(() =>
@@ -543,11 +545,46 @@ export default class World
     }
 
     /**
+     * GetCarTypeName - Obtient le nom du type de voiture actuel
+     * 
+     * @returns {string} Nom du type de voiture
+     */
+    getCarTypeName()
+    {
+        if(this.config && this.config.dukeHazzard) return 'Duke Hazzard'
+        if(this.config && this.config.cyberTruck) return 'CyberTruck'
+        return 'Voiture par défaut'
+    }
+
+    /**
+     * GetCarInitialPosition - Obtient la position initiale selon le type de voiture
+     * 
+     * @returns {Object} Position initiale {x, y, z}
+     */
+    getCarInitialPosition()
+    {
+        // Configuration des positions initiales par type de voiture
+        const carPositions = {
+            'dukehazzard': { x: 0, y: 0, z: 0 },        // Duke Hazzard au sol
+            'cybertruck': { x: 0, y: 0, z: 12 },        // CyberTruck en hauteur
+            'default': { x: 0, y: 0, z: 12 }            // Voiture par défaut en hauteur
+        }
+
+        // Détermination du type de voiture
+        let carType = 'default'
+        if(this.config && this.config.dukeHazzard) carType = 'dukehazzard'
+        else if(this.config && this.config.cyberTruck) carType = 'cybertruck'
+
+        return carPositions[carType]
+    }
+
+    /**
      * SetCar - Configuration de la voiture interactive
      */
     setCar()
     {
-        this.car = new Car({
+        // Utilisation de la factory pour créer la bonne voiture selon la configuration
+        this.carFactory = new CarFactory({
             time: this.time,                                                              // Gestionnaire du temps
             resources: this.resources,                                                    // Gestionnaire des ressources
             objects: this.objects,                                                        // Gestionnaire des objets
@@ -561,6 +598,9 @@ export default class World
             debug: this.debugFolder,                                                      // Interface de debug
             config: this.config                                                           // Configuration de l'application
         })
+
+        // Récupération de l'instance de voiture créée par la factory
+        this.car = this.carFactory.getCar()
         this.container.add(this.car.container)                                           // Ajout de la voiture au conteneur
     }
 

@@ -55,20 +55,16 @@ build:
 
 # Arrêter le serveur de développement
 stop:
-	@if [ -f $(PID_FILE) ]; then \
-		PID=$$(cat $(PID_FILE)); \
-		if ps -p $$PID > /dev/null 2>&1; then \
-			echo "$(YELLOW)🛑 Arrêt du serveur de développement (PID: $$PID)...$(NC)"; \
-			kill $$PID; \
-			rm -f $(PID_FILE); \
-			echo "$(GREEN)✅ Serveur arrêté !$(NC)"; \
-		else \
-			echo "$(RED)❌ Aucun serveur en cours d'exécution avec ce PID$(NC)"; \
-			rm -f $(PID_FILE); \
-		fi; \
-	else \
-		echo "$(RED)❌ Aucun fichier PID trouvé. Le serveur n'est peut-être pas en cours d'exécution.$(NC)"; \
-	fi
+	@echo "$(YELLOW)🛑 Arrêt de tous les serveurs de développement...$(NC)"
+	@# Arrêter les processus npm run dev
+	@pkill -f "npm run dev" 2>/dev/null || true
+	@# Arrêter les processus vite
+	@pkill -f "vite" 2>/dev/null || true
+	@# Arrêter les processus node avec vite
+	@pkill -f "node.*vite" 2>/dev/null || true
+	@# Nettoyer le fichier PID
+	@rm -f $(PID_FILE)
+	@echo "$(GREEN)✅ Tous les serveurs arrêtés !$(NC)"
 
 # Redémarrer le serveur de développement
 restart:

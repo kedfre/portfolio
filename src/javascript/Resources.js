@@ -62,6 +62,9 @@ export default class Resources extends EventEmitter
             { name: 'matcapBlue', source: './models/matcaps/blue.png', type: 'texture' },
             { name: 'matcapYellow', source: './models/matcaps/yellow.png', type: 'texture' },
             { name: 'matcapMetal', source: './models/matcaps/metal.png', type: 'texture' },
+            { name: 'matcapBlackMetal', source: './models/matcaps/blackMetal.png', type: 'texture' },
+            { name: 'matcapChrome', source: './models/matcaps/chrome.png', type: 'texture' },
+            { name: 'matcapGlass', source: './models/matcaps/glass.png', type: 'texture' },
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' }, // Commenté
 
             // Intro
@@ -121,12 +124,19 @@ export default class Resources extends EventEmitter
             // { name: 'carDefaultBunnyEarLeft', source: './models/car/default/bunnyEarLeft.glb' },
             // { name: 'carDefaultBunnyEarRight', source: './models/car/default/bunnyEarRight.glb' },
 
-            // Car default
+            // Car CyberTruck
             { name: 'carCyberTruckChassis', source: './models/car/cyberTruck/chassis.glb' },
             { name: 'carCyberTruckWheel', source: './models/car/cyberTruck/wheel.glb' },
             { name: 'carCyberTruckBackLightsBrake', source: './models/car/cyberTruck/backLightsBrake.glb' },
             { name: 'carCyberTruckBackLightsReverse', source: './models/car/cyberTruck/backLightsReverse.glb' },
             { name: 'carCyberTruckAntena', source: './models/car/cyberTruck/antena.glb' },
+
+            // Car Duke Hazzard
+            { name: 'carDukeHazzardChassis', source: './models/car/dukeHazzard/chassis.glb' },
+            { name: 'carDukeHazzardWheelFront', source: './models/car/dukeHazzard/wheel_front.glb' },
+            { name: 'carDukeHazzardWheelRear', source: './models/car/dukeHazzard/wheel_rear.glb' },
+            { name: 'carDukeHazzardBackLightsBrake', source: './models/car/dukeHazzard/backLightsBrake.glb' },
+            { name: 'carDukeHazzardAntenna', source: './models/car/dukeHazzard/antenna.glb' },
 
             // Project
             { name: 'projectsBoardStructure', source: './models/projects/board/structure.glb' },

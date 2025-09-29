@@ -223,6 +223,24 @@ export default class Materials
         this.shades.items.metal.name = 'shadeMetal'                                      // Nom pour identification
         this.shades.items.metal.uniforms.matcap.value = this.resources.items.matcapMetalTexture  // Assignation de la texture matcap
         this.items.metal = this.shades.items.metal                                       // Ajout au conteneur principal
+        
+        // Matériau matcap black métal
+        this.shades.items.blackMetal = new MatcapMaterial()                                   // Création du matériau matcap
+        this.shades.items.blackMetal.name = 'shadeBlackMetal'                                      // Nom pour identification
+        this.shades.items.blackMetal.uniforms.matcap.value = this.resources.items.matcapBlackMetalTexture  // Assignation de la texture matcap
+        this.items.blackMetal = this.shades.items.blackMetal      
+
+        // Matériau matcap chrome
+        this.shades.items.chrome = new MatcapMaterial()                                   // Création du matériau matcap
+        this.shades.items.chrome.name = 'shadeChrome'                                      // Nom pour identification
+        this.shades.items.chrome.uniforms.matcap.value = this.resources.items.matcapChromeTexture  // Assignation de la texture matcap
+        this.items.chrome = this.shades.items.chrome      
+
+        // Matériau matcap glass
+        this.shades.items.glass = new MatcapMaterial()                                   // Création du matériau matcap
+        this.shades.items.glass.name = 'shadeGlass'                                      // Nom pour identification
+        this.shades.items.glass.uniforms.matcap.value = this.resources.items.matcapGlassTexture  // Assignation de la texture matcap
+        this.items.glass = this.shades.items.glass      
 
         // Matériau matcap or (commenté - non utilisé)
         // this.shades.items.gold = new MatcapMaterial()

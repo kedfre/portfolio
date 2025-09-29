@@ -53,6 +53,24 @@ Ce projet est basé sur le portfolio 3D interactif de Bruno Simon (folio-2019) e
 - [ ] Modifier les liens sociaux
 - [ ] Adapter les couleurs et le thème visuel
 
+## Phase 2.1 : Développement de Nouvelles Fonctionnalités Interactives ✅
+- [x] **Voiture Duke Hazzard** : Nouvelle voiture avec caractéristiques uniques
+  - [x] Roues avant et arrière séparées avec propriétés différentes
+  - [x] Paramètres de conduite spécifiques (vitesse, accélération, freinage)
+  - [x] Pas de feux de marche arrière (backLightsReverse)
+  - [x] Comportement de conduite unique
+- [x] **CarFactory.js** : Factory pattern pour la sélection des voitures
+- [x] **DukeHazzardCar.js** : Classe dédiée pour la voiture Duke Hazzard
+- [x] **Configuration #dukehazzard** : Activation via URL hash
+- [x] Documentation complète du système Duke Hazzard ([dukeHazzard.md](dukeHazzard.md))
+
+**Résultats de la Phase 2.1 :**
+- Architecture modulaire avec pattern Factory pour les voitures
+- Voiture Duke Hazzard avec caractéristiques uniques
+- Système de sélection de voitures via URL hash
+- Documentation complète du nouveau système
+- Intégration transparente avec l'architecture existante
+
 ## Phase 3 : Amélioration des Modèles 3D
 - [ ] Analyser les modèles Blender existants
 - [ ] Créer ou adapter des modèles personnalisés
