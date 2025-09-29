@@ -64,6 +64,7 @@ import PlaygroundSection from './Sections/PlaygroundSection.js'
 // import DistinctionDSection from './Sections/DistinctionDSection.js'
 import Controls from './Controls.js'
 import Sounds from './Sounds.js'
+import VehicleGallery from './VehicleGallery.js'
 import gsap from 'gsap'
 import EasterEggs from './EasterEggs.js'
 
@@ -106,6 +107,9 @@ export default class World
             this.debugFolder = this.debug.addFolder('world')                         // Dossier de debug pour le monde
             this.debugFolder.open()                                                  // Ouverture automatique du dossier
         }
+
+        // Exposer l'instance globalement pour les fonctions console
+        window.world = this
 
         // Configuration du conteneur principal du monde
         this.container = new THREE.Object3D()                                       // Conteneur parent pour tous les éléments 3D
@@ -347,6 +351,9 @@ export default class World
         {
             window.requestAnimationFrame(() =>
             {
+                // Initialisation de la galerie maintenant que les ressources sont prêtes
+                this.setVehicleGallery()
+
                 this.startingScreen.area.activate()                                                    // Activation de la zone interactive
 
                 // Animations de transition vers l'état prêt
@@ -364,14 +371,61 @@ export default class World
 
             gsap.to(this.startingScreen.startLabel.material, { opacity: 0, duration: 0.3, delay: 0.4 })  // Disparition du label de démarrage
 
-            this.start()                                                                               // Démarrage de l'expérience
+            // Ouverture de la galerie de véhicules au lieu de démarrer directement
+            window.setTimeout(() =>
+            {
+                this.vehicleGallery.open()                                                             // Ouverture de la galerie
+            }, 500)
+        })
+    }
+
+    /**
+     * SetVehicleGallery - Configuration de la galerie de véhicules
+     *
+     * Initialise la galerie de sélection de véhicules avec tous ses composants
+     * et configure le callback de sélection pour démarrer l'application.
+     */
+    setVehicleGallery()
+    {
+        // Vérification si la galerie existe déjà
+        if(this.vehicleGallery)
+        {
+            return
+        }
+
+        
+        this.vehicleGallery = new VehicleGallery({
+            config: this.config,                                                          // Configuration de l'application
+            debug: this.debugFolder,                                                      // Interface de debug
+            resources: this.resources,                                                    // Gestionnaire des ressources
+            time: this.time,                                                              // Gestionnaire du temps
+            sizes: this.sizes,                                                            // Gestionnaire des dimensions
+            camera: this.camera,                                                          // Instance de caméra
+            scene: this.scene,                                                            // Scène Three.js
+            renderer: this.renderer,                                                      // Rendu Three.js
+            passes: this.passes,                                                          // Post-processing
+            objects: this.objects,                                                        // Gestionnaire d'objets 3D
+            materials: this.materials                                                     // Gestionnaire de matériaux
+        })
+
+        // Configuration du callback de sélection de véhicule
+        this.vehicleGallery.onVehicleSelected = (selectedVehicle) =>
+        {
+            // Mise à jour de la configuration avec le véhicule sélectionné
+            this.config = { ...this.config, ...selectedVehicle.config }
+            
+            // Démarrage de l'application avec le véhicule sélectionné
+            this.start()
 
             // Déclenchement de la révélation après un délai
             window.setTimeout(() =>
             {
-                this.reveal.go()                                                                       // Démarrage des animations de révélation
+                this.reveal.go()                                                           // Démarrage des animations de révélation
             }, 600)
-        })
+        }
+
+        // Ajout de la galerie à la scène
+        this.scene.add(this.vehicleGallery.container)
     }
 
     /**

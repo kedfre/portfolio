@@ -53,6 +53,44 @@ Ce projet est basé sur le portfolio 3D interactif de Bruno Simon (folio-2019) e
 - [ ] Modifier les liens sociaux
 - [ ] Adapter les couleurs et le thème visuel
 
+## Phase 2.2 : Galerie de Sélection de Véhicules ✅
+- [x] **VehicleGallery.js** : Gestionnaire principal de la galerie
+  - [x] Orchestration de tous les composants
+  - [x] Gestion des états (fermé, ouvert, sélection)
+  - [x] Navigation entre les véhicules
+  - [x] Transition vers l'application principale
+  - [x] Intégration avec le système existant
+- [x] **VehiclePreview.js** : Prévisualisation des véhicules
+  - [x] Affichage des véhicules en gros plan
+  - [x] Rotation des véhicules avec la souris
+  - [x] Gestion des transitions entre véhicules
+  - [x] Intégration avec CarFactory existant
+  - [x] Optimisation des performances
+- [x] **GalleryControls.js** : Contrôles de navigation
+  - [x] Flèches de navigation gauche/droite
+  - [x] Indicateurs de position (points)
+  - [x] Bouton de sélection "Choisir ce véhicule"
+  - [x] Animations de transition
+  - [x] Gestion des événements tactiles
+- [x] **GalleryCamera.js** : Caméra fixe pour la galerie
+  - [x] Positionnement fixe pour le gros plan
+  - [x] Configuration de l'éclairage
+  - [x] Gestion du redimensionnement
+  - [x] Optimisation pour la prévisualisation
+- [x] **Intégration dans World/index.js**
+  - [x] Modification de l'écran de démarrage
+  - [x] Ouverture de la galerie au clic sur "Start"
+  - [x] Callback de sélection de véhicule
+  - [x] Démarrage de l'application avec le véhicule sélectionné
+
+**Résultats de la Phase 2.2 :**
+- Galerie de sélection de véhicules fonctionnelle
+- Navigation fluide entre les 3 véhicules disponibles
+- Rotation des véhicules avec la souris
+- Même configuration de scène (éclairage, sol)
+- Transition fluide vers l'application principale
+- Intégration transparente avec l'architecture existante
+
 ## Phase 2.1 : Développement de Nouvelles Fonctionnalités Interactives ✅
 - [x] **Voiture Duke Hazzard** : Nouvelle voiture avec caractéristiques uniques
   - [x] Roues avant et arrière séparées avec propriétés différentes
