@@ -222,25 +222,92 @@ export default class DukeHazzardCar
     }
 
     /**
-     * SetAntena - Configuration de l'antenne Duke Hazzard
+     * SetAntena - Configuration de l'antenne Duke Hazzard avec simulation physique réaliste
      * 
-     * Configure l'antenne de la voiture Duke Hazzard avec simulation physique.
-     * L'antenne est attachée au châssis et suit ses mouvements.
+     * Configure l'antenne de la voiture Duke Hazzard avec une simulation physique avancée
+     * qui réagit de manière réaliste aux accélérations et mouvements de la voiture.
+     * L'antenne utilise un système de forces avec amortissement et retour élastique.
+     *
+     * SIMULATION PHYSIQUE :
+     * - Force d'accélération : Réaction aux mouvements de la voiture
+     * - Amortissement : Réduction progressive des oscillations
+     * - Force de retour : Retour élastique vers la position neutre
+     * - Limitation : Évite les oscillations excessives
+     *
+     * COORDONNÉES :
+     * - Position absolue : Dans l'espace 3D global
+     * - Position locale : Par rapport à l'orientation de la voiture
+     * - Conversion : Rotation pour synchronisation avec le châssis
      */
     setAntena()
     {
         // Configuration de l'antenne Duke Hazzard
         this.antena = {}
 
+        // Paramètres de simulation physique (ajustables via debug)
+        this.antena.speedStrength = 10                                              // Force de réaction à l'accélération (sensibilité)
+        this.antena.damping = 0.035                                                 // Amortissement des oscillations (frottement)
+        this.antena.pullBackStrength = 0.02                                         // Force de retour à la position neutre (élasticité)
+
         // Création de l'objet 3D de l'antenne à partir du modèle Duke Hazzard
         this.antena.object = this.objects.getConvertedMesh(this.models.antenna.scene.children)
         this.chassis.object.add(this.antena.object)                                 // Attachement au châssis
+
+        // Variables de simulation physique
+        this.antena.speed = new THREE.Vector2()                                     // Vitesse de l'antenne (vx, vy)
+        this.antena.absolutePosition = new THREE.Vector2()                          // Position absolue dans l'espace 3D
+        this.antena.localPosition = new THREE.Vector2()                             // Position locale par rapport à la voiture
+
+        // Simulation physique de l'antenne à chaque frame
+        this.time.on('tick', () =>
+        {
+            const max = 1
+            // Limitation de l'accélération pour éviter les oscillations excessives
+            const accelerationX = Math.min(Math.max(this.movement.acceleration.x, - max), max)
+            const accelerationY = Math.min(Math.max(this.movement.acceleration.y, - max), max)
+
+            // Application de la force d'accélération (loi de Newton : F = ma)
+            this.antena.speed.x -= accelerationX * this.antena.speedStrength        // Force proportionnelle à l'accélération
+            this.antena.speed.y -= accelerationY * this.antena.speedStrength
+
+            // Force de retour à la position neutre (ressort élastique)
+            const position = this.antena.absolutePosition.clone()
+            const pullBack = position.negate().multiplyScalar(position.length() * this.antena.pullBackStrength)
+            this.antena.speed.add(pullBack)                                         // Force de rappel vers le centre
+
+            // Application de l'amortissement (frottement visqueux)
+            this.antena.speed.x *= 1 - this.antena.damping                          // Réduction progressive de la vitesse
+            this.antena.speed.y *= 1 - this.antena.damping
+
+            // Mise à jour de la position (intégration de la vitesse)
+            this.antena.absolutePosition.add(this.antena.speed)
+
+            // Conversion en coordonnées locales (rotation pour synchronisation avec le châssis)
+            this.antena.localPosition.copy(this.antena.absolutePosition)
+            this.antena.localPosition.rotateAround(new THREE.Vector2(), - this.chassis.object.rotation.z)
+
+            // Application de la rotation à l'antenne (facteur d'amplification 0.1)
+            this.antena.object.rotation.y = this.antena.localPosition.x * 0.1       // Rotation autour de l'axe Y
+            this.antena.object.rotation.x = this.antena.localPosition.y * 0.1       // Rotation autour de l'axe X
+        })
 
         // Configuration des ombres pour l'antenne
         this.shadows.add(this.antena.object, { 
             receive: false, 
             cast: true 
         })
+
+        // Configuration de l'interface de debug
+        if(this.debug)
+        {
+            const folder = this.debugFolder.addFolder('antena')
+            folder.open()                                                           // Ouverture automatique du dossier
+
+            // Contrôles de debug pour les paramètres de simulation physique
+            folder.add(this.antena, 'speedStrength').step(0.001).min(0).max(50)     // Force de réaction
+            folder.add(this.antena, 'damping').step(0.0001).min(0).max(0.1)         // Amortissement
+            folder.add(this.antena, 'pullBackStrength').step(0.0001).min(0).max(0.1) // Force de retour
+        }
     }
 
     /**
