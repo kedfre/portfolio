@@ -69,7 +69,8 @@ Ce projet est basé sur le portfolio 3D interactif de Bruno Simon (folio-2019) e
 - [x] **GalleryControls.js** : Contrôles de navigation
   - [x] Flèches de navigation gauche/droite
   - [x] Indicateurs de position (points)
-  - [x] Bouton de sélection "Choisir ce véhicule"
+  - [x] Bouton de sélection "Choisir ce véhicule" (HTML centré en bas)
+  - [x] Bouton sélecteur de couleurs (🎨 en haut à droite)
   - [x] Animations de transition
   - [x] Gestion des événements tactiles
 - [x] **GalleryCamera.js** : Caméra fixe pour la galerie
@@ -90,6 +91,7 @@ Ce projet est basé sur le portfolio 3D interactif de Bruno Simon (folio-2019) e
 - Même configuration de scène (éclairage, sol)
 - Transition fluide vers l'application principale
 - Intégration transparente avec l'architecture existante
+- **Amélioration** : Bouton "Choisir ce véhicule" en HTML centré en bas de l'écran (plus optimal que le bouton 3D)
 
 ## Phase 2.1 : Développement de Nouvelles Fonctionnalités Interactives ✅
 - [x] **Voiture Duke Hazzard** : Nouvelle voiture avec caractéristiques uniques
@@ -141,6 +143,61 @@ Ce projet est basé sur le portfolio 3D interactif de Bruno Simon (folio-2019) e
 - [ ] Planifier les futures améliorations
 - [ ] Documenter les procédures de maintenance
 - [ ] Créer un guide d'utilisation
+
+## Phase 8 : Améliorations Futures - Contrôle Granulaire des Matcaps
+
+### 🎨 Stratégie de Nommage des Matcaps
+
+**Objectif :** Permettre la modification des couleurs de matcaps pour des parties spécifiques du véhicule (carrosserie, jantes, vitres, etc.) avec un contrôle granulaire.
+
+**Convention de nommage recommandée :**
+- Format : `partie_typeMatcap`
+- Exemples : `body_chrome`, `wheels_blackMetal`, `tires_black`, `windows_glass`
+
+**Tâches à réaliser :**
+- [ ] **Préparer la stratégie de nommage des matcaps pour contrôle granulaire**
+- [ ] **Renommer les objets dans Blender selon la convention partie_typeMatcap**
+- [ ] **Modifier getMatcapTypeFromName() pour supporter le nouveau format**
+
+**Avantages :**
+- Contrôle granulaire sur chaque partie du véhicule
+- Noms explicites et cohérents
+- Facile d'ajouter de nouvelles parties
+- Compatibilité avec l'ancien système
+
+**Exemple de migration :**
+```
+Ancien : chrome_carrosserie_duke_hazzard
+Nouveau : body_chrome
+
+Ancien : blackMetal_jantes_avant  
+Nouveau : wheels_blackMetal
+```
+
+Cette amélioration permettra un contrôle précis et intuitif des couleurs de chaque partie du véhicule dans l'interface de sélection des couleurs.
+
+### 🎨 Interface de Sélection des Couleurs - Implémentée ✅
+
+**Composants créés :**
+- [x] **MatcapColorController.js** : Contrôleur de couleurs des matcaps
+- [x] **ColorSelector.js** : Interface utilisateur HTML pour la sélection
+- [x] **Intégration dans VehicleGallery.js** : Connexion avec la prévisualisation
+- [x] **Bouton dans GalleryControls.js** : Bouton 🎨 pour ouvrir/fermer
+
+**Fonctionnalités :**
+- [x] Sélection de matériau via dropdown
+- [x] Contrôles HSL (Hue, Saturation, Lightness)
+- [x] Prévisualisation en temps réel
+- [x] Application immédiate aux véhicules
+- [x] Boutons de réinitialisation
+- [x] Interface responsive avec animations
+
+**Utilisation :**
+1. Ouvrir la galerie (clic sur "Start")
+2. Cliquer sur le bouton 🎨 en haut à droite
+3. Sélectionner un matériau dans le dropdown
+4. Ajuster les couleurs avec les sliders HSL
+5. Voir le résultat en temps réel sur le véhicule
 
 ## Notes de Développement
 

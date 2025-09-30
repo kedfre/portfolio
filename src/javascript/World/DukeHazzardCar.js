@@ -369,8 +369,10 @@ export default class DukeHazzardCar
         this.wheels.frontObject = this.objects.getConvertedMesh(this.models.wheelFront.scene.children)
         this.wheels.rearObject = this.objects.getConvertedMesh(this.models.wheelRear.scene.children)
         
-        // Tableau pour stocker les 4 roues
+        // Tableau pour stocker les 4 roues avec leurs conteneurs
         this.wheels.items = []
+        this.wheels.steeringContainers = [] // Conteneurs pour la direction
+        this.wheels.rollingContainers = []  // Conteneurs pour le roulement
 
         // Création des 4 roues (2 avant + 2 arrière)
         const wheelPositions = [
@@ -394,15 +396,26 @@ export default class DukeHazzardCar
                 wheelObject = this.wheels.rearObject.clone()
             }
             
-            // Position de la roue
-            wheelObject.position.x = wheelConfig.x
-            wheelObject.position.y = wheelConfig.y
+            // Création des conteneurs pour séparer les rotations
+            const steeringContainer = new THREE.Object3D() // Conteneur pour la direction
+            const rollingContainer = new THREE.Object3D()  // Conteneur pour le roulement
             
-            // Rotation de la roue (pour la symétrie droite/gauche)
+            // Position du conteneur de direction
+            steeringContainer.position.x = wheelConfig.x
+            steeringContainer.position.y = wheelConfig.y
+            
+            // Rotation de base de la roue (pour la symétrie droite/gauche)
             wheelObject.rotation.z = wheelConfig.rotation
             
+            // Hiérarchie : chassis -> steeringContainer -> rollingContainer -> wheelObject
+            rollingContainer.add(wheelObject)
+            steeringContainer.add(rollingContainer)
+            this.chassis.object.add(steeringContainer)
+            
+            // Stockage des références
             this.wheels.items.push(wheelObject)
-            this.chassis.object.add(wheelObject)
+            this.wheels.steeringContainers.push(steeringContainer)
+            this.wheels.rollingContainers.push(rollingContainer)
         }
 
         // Configuration des ombres pour toutes les roues
@@ -566,23 +579,32 @@ export default class DukeHazzardCar
                 steeringAngle = this.physics.car.steering
             }
             
-            // Application de la direction aux roues avant uniquement (indices 0 et 1)
-            for(let i = 0; i < 2; i++)
+            // Rotation de toutes les roues sur l'axe Y en fonction de la vitesse (roulement)
+            const wheelRadius = 0.3 // Rayon approximatif de la roue en mètres
+            const rotationSpeed = this.movement.localSpeed.x / wheelRadius
+            
+            for(let i = 0; i < this.wheels.items.length; i++)
             {
-                if(this.wheels.items[i])
+                if(this.wheels.items[i] && this.wheels.steeringContainers[i] && this.wheels.rollingContainers[i])
                 {
-                    // Rotation de direction (axe Z pour la direction)
-                    // Les deux roues avant doivent tourner dans le même sens
-                    if(i === 0)
+                    // Rotation de roulement (axe Y) - appliquée au conteneur de roulement
+                    this.wheels.rollingContainers[i].rotation.y += rotationSpeed * this.time.delta
+                    
+                    // Direction (axe Z) - appliquée au conteneur de direction (roues avant uniquement)
+                    if(i < 2) // Roues avant
                     {
-                        // Roue avant gauche : direction normale
-                        this.wheels.items[i].rotation.z = -steeringAngle
+                        if(i === 0)
+                        {
+                            // Roue avant gauche : direction normale
+                            this.wheels.steeringContainers[i].rotation.z = -steeringAngle
+                        }
+                        else if(i === 1)
+                        {
+                            // Roue avant droite : direction normale (même sens que la gauche)
+                            this.wheels.steeringContainers[i].rotation.z = -steeringAngle
+                        }
                     }
-                    else if(i === 1)
-                    {
-                        // Roue avant droite : direction + symétrie de base (Math.PI)
-                        this.wheels.items[i].rotation.z = Math.PI - steeringAngle
-                    }
+                    // Les roues arrière n'ont pas de direction (rotation Z reste à 0)
                 }
             }
         }

@@ -28,6 +28,7 @@
 
 import * as THREE from 'three'
 import CarFactory from './CarFactory.js'
+import MatcapColorController from './MatcapColorController.js'
 import gsap from 'gsap'
 
 export default class VehiclePreview
@@ -91,6 +92,7 @@ export default class VehiclePreview
 
         // Initialisation des composants
         this.setVehicleContainer()
+        this.setMatcapColorController()
         this.setEvents()
         this.setDebug()
 
@@ -121,6 +123,22 @@ export default class VehiclePreview
         this.transitionContainer = new THREE.Object3D()
         this.transitionContainer.matrixAutoUpdate = false
         this.container.add(this.transitionContainer)
+    }
+
+    /**
+     * SetMatcapColorController - Configuration du contrôleur de couleurs des matcaps
+     *
+     * Initialise le contrôleur de couleurs pour permettre la modification
+     * des couleurs des matcaps des véhicules en temps réel.
+     */
+    setMatcapColorController()
+    {
+        this.matcapColorController = new MatcapColorController({
+            debug: this.debug,
+            resources: this.resources
+        })
+        
+        console.log('🎨 Contrôleur de couleurs des matcaps initialisé')
     }
 
     /**
@@ -474,6 +492,13 @@ export default class VehiclePreview
 
         // Réinitialisation de la rotation
         this.resetRotation()
+        
+        // Intégration du contrôleur de couleurs des matcaps
+        if(this.matcapColorController)
+        {
+            this.matcapColorController.setCurrentVehicle(this.state.currentVehicle)
+            console.log('🎨 Contrôleur de couleurs connecté au véhicule actuel')
+        }
     }
 
     /**
@@ -601,12 +626,19 @@ export default class VehiclePreview
     transitionToVehicle(_vehicle, _onComplete = null)
     {
         // Animation de sortie du véhicule actuel
-        gsap.to(this.vehicleContainer, 
+        gsap.to(this.vehicleContainer.scale, 
             {
-                scaleX: 0.8,
-                scaleY: 0.8,
-                scaleZ: 0.8,
-                rotationY: Math.PI * 0.5,
+                x: 0.8,
+                y: 0.8,
+                z: 0.8,
+                duration: 0.3,
+                ease: 'power2.in'
+            }
+        )
+        
+        gsap.to(this.vehicleContainer.rotation, 
+            {
+                y: Math.PI * 0.5,
                 duration: 0.3,
                 ease: 'power2.in',
                 onComplete: () =>
@@ -635,18 +667,27 @@ export default class VehiclePreview
                     this.createVehicle(_vehicle)
 
                     // Animation d'entrée du nouveau véhicule
-                    gsap.fromTo(this.vehicleContainer,
+                    gsap.fromTo(this.vehicleContainer.scale,
                         {
-                            scaleX: 0.8,
-                            scaleY: 0.8,
-                            scaleZ: 0.8,
-                            rotationY: -Math.PI * 0.5
+                            x: 0.8,
+                            y: 0.8,
+                            z: 0.8
                         },
                         {
-                            scaleX: 1,
-                            scaleY: 1,
-                            scaleZ: 1,
-                            rotationY: 0,
+                            x: 1,
+                            y: 1,
+                            z: 1,
+                            duration: 0.4,
+                            ease: 'back.out(1.7)'
+                        }
+                    )
+                    
+                    gsap.fromTo(this.vehicleContainer.rotation,
+                        {
+                            y: -Math.PI * 0.5
+                        },
+                        {
+                            y: 0,
                             duration: 0.4,
                             ease: 'back.out(1.7)',
                             onComplete: () =>

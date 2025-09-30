@@ -230,6 +230,12 @@ export default class Materials
         this.shades.items.blackMetal.uniforms.matcap.value = this.resources.items.matcapBlackMetalTexture  // Assignation de la texture matcap
         this.items.blackMetal = this.shades.items.blackMetal      
 
+        // Matériau matcap dark black
+        this.shades.items.darkBlack = new MatcapMaterial()                                   // Création du matériau matcap
+        this.shades.items.darkBlack.name = 'shadeDarkBlack'                                      // Nom pour identification
+        this.shades.items.darkBlack.uniforms.matcap.value = this.resources.items.matcapDarkBlackTexture  // Assignation de la texture matcap
+        this.items.darkBlack = this.shades.items.darkBlack    
+
         // Matériau matcap chrome
         this.shades.items.chrome = new MatcapMaterial()                                   // Création du matériau matcap
         this.shades.items.chrome.name = 'shadeChrome'                                      // Nom pour identification

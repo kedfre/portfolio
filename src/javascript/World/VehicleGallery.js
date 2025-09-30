@@ -33,6 +33,7 @@
 import * as THREE from 'three'
 import VehiclePreview from './VehiclePreview.js'
 import GalleryControls from './GalleryControls.js'
+import ColorSelector from './ColorSelector.js'
 // Plus besoin de GalleryCamera - on utilise la caméra principale
 import Floor from './Floor.js'
 import Materials from './Materials.js'
@@ -117,6 +118,7 @@ export default class VehicleGallery
         this.setCamera()
         this.setVehiclePreview()
         this.setControls()
+        this.setColorSelector()
         this.setEvents()
 
         // Configuration de l'interface de debug
@@ -248,13 +250,29 @@ export default class VehicleGallery
             debug: this.debugFolder,
             vehicles: this.vehicles,
             onVehicleChange: (index) => this.changeVehicle(index),
-            onVehicleSelect: (vehicle) => this.selectVehicle(vehicle)
+            onVehicleSelect: (vehicle) => this.selectVehicle(vehicle),
+            onToggleColorSelector: () => this.toggleColorSelector()
         })
 
         // Configuration de la caméra pour les contrôles
         this.controls.setCamera(this.camera.instance)
 
-        this.container.add(this.controls.container)
+        // Plus de conteneur 3D pour les contrôles - ils sont maintenant en HTML
+    }
+
+    /**
+     * SetColorSelector - Configuration du sélecteur de couleurs
+     *
+     * Crée l'interface de sélection des couleurs des matcaps.
+     */
+    setColorSelector()
+    {
+        this.colorSelector = new ColorSelector({
+            matcapColorController: this.vehiclePreview.matcapColorController,
+            debug: this.debugFolder
+        })
+        
+        console.log('🎨 Sélecteur de couleurs initialisé')
     }
 
     /**
@@ -317,6 +335,9 @@ export default class VehicleGallery
         this.state.isOpen = true
         this.state.isTransitioning = true
 
+        // Sauvegarde des paramètres originaux avant modification
+        this.saveOriginalSettings()
+
         // Affichage du conteneur
         this.container.visible = true
 
@@ -325,18 +346,27 @@ export default class VehicleGallery
         this.controls.setCurrentVehicle(this.state.currentVehicleIndex)
 
         // Animation d'entrée
-        gsap.fromTo(this.container, 
+        gsap.fromTo(this.container.scale, 
             { 
-                scaleX: 0.8,
-                scaleY: 0.8,
-                scaleZ: 0.8,
-                rotationY: Math.PI * 0.1
+                x: 0.8,
+                y: 0.8,
+                z: 0.8
             },
             { 
-                scaleX: 1,
-                scaleY: 1,
-                scaleZ: 1,
-                rotationY: 0,
+                x: 1,
+                y: 1,
+                z: 1,
+                duration: 0.8,
+                ease: 'back.out(1.7)'
+            }
+        )
+        
+        gsap.fromTo(this.container.rotation, 
+            { 
+                y: Math.PI * 0.1
+            },
+            { 
+                y: 0,
                 duration: 0.8,
                 ease: 'back.out(1.7)',
                 onComplete: () =>
@@ -353,7 +383,7 @@ export default class VehicleGallery
     /**
      * Close - Fermeture de la galerie
      *
-     * Ferme la galerie avec une animation de sortie.
+     * Ferme la galerie avec une animation de sortie et restaure les paramètres originaux.
      */
     close()
     {
@@ -365,12 +395,19 @@ export default class VehicleGallery
         this.state.isTransitioning = true
 
         // Animation de sortie
-        gsap.to(this.container, 
+        gsap.to(this.container.scale, 
             { 
-                scaleX: 0.8,
-                scaleY: 0.8,
-                scaleZ: 0.8,
-                rotationY: Math.PI * 0.1,
+                x: 0.8,
+                y: 0.8,
+                z: 0.8,
+                duration: 0.5,
+                ease: 'back.in(1.7)'
+            }
+        )
+        
+        gsap.to(this.container.rotation, 
+            { 
+                y: Math.PI * 0.1,
                 duration: 0.5,
                 ease: 'back.in(1.7)',
                 onComplete: () =>
@@ -378,6 +415,9 @@ export default class VehicleGallery
                     this.container.visible = false
                     this.state.isOpen = false
                     this.state.isTransitioning = false
+                    
+                    // Restauration des paramètres originaux
+                    this.restoreOriginalSettings()
                 }
             }
         )
@@ -430,9 +470,11 @@ export default class VehicleGallery
         this.state.selectedVehicle = _vehicle
 
         // Animation de sélection
-        gsap.to(this.vehiclePreview.container, 
+        gsap.to(this.vehiclePreview.container.scale, 
             { 
-                scale: 1.1,
+                x: 1.1,
+                y: 1.1,
+                z: 1.1,
                 duration: 0.2,
                 yoyo: true,
                 repeat: 1,
@@ -534,6 +576,73 @@ export default class VehicleGallery
     }
 
     /**
+     * SaveOriginalSettings - Sauvegarde des paramètres originaux
+     *
+     * Sauvegarde les paramètres de caméra et d'éclairage avant modification.
+     * Utilise les vraies valeurs d'origine du commit 7e648c1e1768a8ef889af4f7dcf82d2b61c0e116
+     */
+    saveOriginalSettings()
+    {
+        // Sauvegarde des vraies valeurs originales de zoom (avant modification par la galerie)
+        if(this.camera && this.camera.zoom)
+        {
+            this.originalCameraSettings = {
+                minDistance: 14,  // Valeur originale du commit 7e648c1e1768a8ef889af4f7dcf82d2b61c0e116
+                amplitude: 15,    // Valeur originale du commit 7e648c1e1768a8ef889af4f7dcf82d2b61c0e116
+                value: this.config.cyberTruck ? 0.3 : 0.5  // Valeur originale selon le mode
+            }
+        }
+
+        // Sauvegarde des lumières existantes dans la scène
+        this.originalLights = []
+        this.scene.traverse((child) => {
+            if(child.isLight)
+            {
+                this.originalLights.push({
+                    light: child,
+                    visible: child.visible
+                })
+            }
+        })
+    }
+
+    /**
+     * RestoreOriginalSettings - Restauration des paramètres originaux
+     *
+     * Restaure les paramètres de caméra et d'éclairage à leur état d'origine.
+     */
+    restoreOriginalSettings()
+    {
+        // Restauration des paramètres de zoom de la caméra principale
+        if(this.originalCameraSettings && this.camera && this.camera.zoom)
+        {
+            this.camera.zoom.minDistance = this.originalCameraSettings.minDistance
+            this.camera.zoom.amplitude = this.originalCameraSettings.amplitude
+            this.camera.zoom.targetValue = this.originalCameraSettings.value
+        }
+
+        // Restauration de la visibilité des lumières originales
+        if(this.originalLights)
+        {
+            this.originalLights.forEach(({ light, visible }) => {
+                light.visible = visible
+            })
+        }
+
+        // Suppression des lumières ajoutées par la galerie
+        if(this.galleryCamera && this.galleryCamera.container)
+        {
+            // Suppression des lumières de la galerie de la scène principale
+            this.galleryCamera.container.traverse((child) => {
+                if(child.isLight)
+                {
+                    this.scene.remove(child)
+                }
+            })
+        }
+    }
+
+    /**
      * Destroy - Destruction de la galerie
      *
      * Nettoie toutes les ressources utilisées par la galerie.
@@ -590,13 +699,9 @@ export default class VehicleGallery
             // Modifier le zoom de la caméra principale
             if(this.camera && this.camera.zoom) {
                 // Sauvegarder les valeurs originales si pas déjà fait
-                if(!window.galleryOriginalValues) {
-                    window.galleryOriginalValues = {
-                        minDistance: this.camera.zoom.minDistance,
-                        amplitude: this.camera.zoom.amplitude,
-                        value: this.camera.zoom.value
-                    }
-                    console.log('Valeurs originales sauvegardées:', window.galleryOriginalValues)
+                if(!this.originalCameraSettings) {
+                    this.saveOriginalSettings()
+                    console.log('Valeurs originales sauvegardées:', this.originalCameraSettings)
                 }
                 
                 // Surcharger les paramètres pour un zoom plus important
@@ -614,11 +719,11 @@ export default class VehicleGallery
 
         // Fonction pour restaurer le zoom original
         window.restoreGalleryZoom = () => {
-            if(window.galleryOriginalValues && this.camera && this.camera.zoom) {
+            if(this.originalCameraSettings && this.camera && this.camera.zoom) {
                 // Restaurer les paramètres originaux
-                this.camera.zoom.minDistance = window.galleryOriginalValues.minDistance
-                this.camera.zoom.amplitude = window.galleryOriginalValues.amplitude
-                this.camera.zoom.targetValue = window.galleryOriginalValues.value
+                this.camera.zoom.minDistance = this.originalCameraSettings.minDistance
+                this.camera.zoom.amplitude = this.originalCameraSettings.amplitude
+                this.camera.zoom.targetValue = this.originalCameraSettings.value
                 console.log('Zoom et paramètres restaurés aux valeurs originales')
             } else {
                 console.log('Aucune valeur originale sauvegardée')
@@ -658,5 +763,23 @@ export default class VehicleGallery
         console.log('restoreGalleryZoom() - Restaure le zoom original')
         console.log('getGalleryZoomCamera() - Affiche le zoom actuel')
         console.log('setGalleryVehiclePosition(y) - Ajuste la position verticale des véhicules')
+    }
+
+    /**
+     * ToggleColorSelector - Basculement du sélecteur de couleurs
+     *
+     * Ouvre ou ferme l'interface de sélection des couleurs.
+     */
+    toggleColorSelector()
+    {
+        console.log('🎨 VehicleGallery.toggleColorSelector appelé, colorSelector disponible:', !!this.colorSelector)
+        if(this.colorSelector)
+        {
+            this.colorSelector.toggle()
+        }
+        else
+        {
+            console.warn('❌ colorSelector non initialisé')
+        }
     }
 }

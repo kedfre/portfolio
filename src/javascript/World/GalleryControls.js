@@ -50,16 +50,13 @@ export default class GalleryControls
         this.vehicles = _options.vehicles
         this.onVehicleChange = _options.onVehicleChange
         this.onVehicleSelect = _options.onVehicleSelect
+        this.onToggleColorSelector = _options.onToggleColorSelector
 
         // Configuration de l'interface de debug
         if(this.debug)
         {
             this.debugFolder = this.debug.addFolder('galleryControls')
         }
-
-        // Configuration du conteneur principal
-        this.container = new THREE.Object3D()
-        this.container.matrixAutoUpdate = false
 
         // État des contrôles
         this.state = {
@@ -70,13 +67,8 @@ export default class GalleryControls
 
         // Initialisation des composants
         this.setNavigationArrows()
-        this.setPositionIndicators()
-        this.setSelectButton()
         this.setEvents()
         this.setDebug()
-
-        // Masquage initial
-        this.container.visible = false
     }
 
     /**
@@ -164,12 +156,86 @@ export default class GalleryControls
             this.nextVehicle()
         })
 
+        // Bouton sélecteur de couleurs
+        this.colorButton = document.createElement('button')
+        this.colorButton.innerHTML = '🎨'
+        this.colorButton.style.cssText = `
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+            font-size: 20px;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        `
+        this.colorButton.addEventListener('mouseenter', () => {
+            this.colorButton.style.background = 'rgba(255, 255, 255, 1)'
+            this.colorButton.style.transform = 'scale(1.1)'
+        })
+        this.colorButton.addEventListener('mouseleave', () => {
+            this.colorButton.style.background = 'rgba(255, 255, 255, 0.8)'
+            this.colorButton.style.transform = 'scale(1)'
+        })
+        this.colorButton.addEventListener('click', () => {
+            console.log('Clic sur bouton couleurs')
+            this.toggleColorSelector()
+        })
+
+        // Bouton "Choisir ce véhicule" centré en bas
+        this.chooseButton = document.createElement('button')
+        this.chooseButton.innerHTML = 'Choisir ce véhicule'
+        this.chooseButton.style.cssText = `
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        `
+        this.chooseButton.addEventListener('mouseenter', () => {
+            this.chooseButton.style.background = 'linear-gradient(135deg, #00cc6a, #00aa55)'
+            this.chooseButton.style.transform = 'translateX(-50%) scale(1.05)'
+            this.chooseButton.style.boxShadow = '0 8px 25px rgba(0, 255, 136, 0.4)'
+        })
+        this.chooseButton.addEventListener('mouseleave', () => {
+            this.chooseButton.style.background = 'linear-gradient(135deg, #00ff88, #00cc6a)'
+            this.chooseButton.style.transform = 'translateX(-50%) scale(1)'
+            this.chooseButton.style.boxShadow = '0 6px 20px rgba(0, 255, 136, 0.3)'
+        })
+        this.chooseButton.addEventListener('click', () => {
+            console.log('Clic sur bouton "Choisir ce véhicule"')
+            this.selectVehicle()
+        })
+
         // Ajout des boutons au conteneur
         this.htmlContainer.appendChild(this.leftButton)
         this.htmlContainer.appendChild(this.rightButton)
+        this.htmlContainer.appendChild(this.colorButton)
+        this.htmlContainer.appendChild(this.chooseButton)
 
         // Ajout au DOM
         document.body.appendChild(this.htmlContainer)
+        
+        // Masquage initial des boutons HTML
+        this.htmlContainer.style.display = 'none'
     }
 
     // Méthodes 3D supprimées - on utilise maintenant des boutons HTML simples
@@ -181,123 +247,7 @@ export default class GalleryControls
      */
     // Animations 3D supprimées - on utilise maintenant des boutons HTML avec CSS
 
-    /**
-     * SetPositionIndicators - Configuration des indicateurs de position
-     *
-     * Crée les points indicateurs qui montrent la position actuelle
-     * dans la liste des véhicules.
-     */
-    setPositionIndicators()
-    {
-        // Conteneur pour les indicateurs
-        this.indicatorsContainer = new THREE.Object3D()
-        this.indicatorsContainer.position.set(0, -2, 0)
-        this.container.add(this.indicatorsContainer)
 
-        // Création des indicateurs
-        this.indicators = []
-        const spacing = 0.8
-        const startX = -(this.vehicles.length - 1) * spacing / 2
-
-        for(let i = 0; i < this.vehicles.length; i++)
-        {
-            const indicator = this.createIndicator(i)
-            indicator.position.set(startX + i * spacing, 0, 0)
-            this.indicatorsContainer.add(indicator)
-            this.indicators.push(indicator)
-        }
-
-        // Mise à jour de l'indicateur actuel
-        this.updateIndicators()
-    }
-
-    /**
-     * CreateIndicator - Création d'un indicateur
-     *
-     * Crée un point indicateur pour une position donnée.
-     *
-     * @param {number} _index - Index de l'indicateur
-     * @returns {THREE.Mesh} Indicateur créé
-     */
-    createIndicator(_index)
-    {
-        // Géométrie du point
-        const geometry = new THREE.SphereGeometry(0.1, 8, 8)
-        
-        // Matériau du point
-        const material = new THREE.MeshBasicMaterial({
-            color: 0x666666,
-            transparent: true,
-            opacity: 0.6
-        })
-
-        // Création du mesh
-        const indicator = new THREE.Mesh(geometry, material)
-        indicator.matrixAutoUpdate = false
-
-        // Ajout d'un effet de brillance
-        const glowGeometry = new THREE.SphereGeometry(0.12, 8, 8)
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ffff,
-            transparent: true,
-            opacity: 0.2
-        })
-        const glow = new THREE.Mesh(glowGeometry, glowMaterial)
-        glow.matrixAutoUpdate = false
-        indicator.add(glow)
-
-        return indicator
-    }
-
-    /**
-     * SetSelectButton - Configuration du bouton de sélection
-     *
-     * Crée le bouton "Choisir ce véhicule" pour confirmer la sélection.
-     */
-    setSelectButton()
-    {
-        // Conteneur pour le bouton
-        this.buttonContainer = new THREE.Object3D()
-        this.buttonContainer.position.set(0, 2.5, 0)
-        this.container.add(this.buttonContainer)
-
-        // Géométrie du bouton
-        const geometry = new THREE.PlaneGeometry(3, 0.8)
-        
-        // Matériau du bouton
-        const material = new THREE.MeshBasicMaterial({
-            color: 0x00ff00,
-            transparent: true,
-            opacity: 0.8
-        })
-
-        // Création du mesh
-        this.selectButton = new THREE.Mesh(geometry, material)
-        this.selectButton.matrixAutoUpdate = false
-        this.buttonContainer.add(this.selectButton)
-
-        // Ajout d'un effet de brillance
-        const glowGeometry = new THREE.PlaneGeometry(3.2, 1)
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ffff,
-            transparent: true,
-            opacity: 0.3
-        })
-        const glow = new THREE.Mesh(glowGeometry, glowMaterial)
-        glow.matrixAutoUpdate = false
-        this.selectButton.add(glow)
-
-        // Animation de pulsation du bouton
-        gsap.to(this.selectButton.scale, {
-            x: 1.05,
-            y: 1.05,
-            z: 1.05,
-            duration: 2,
-            repeat: -1,
-            yoyo: true,
-            ease: 'power2.inOut'
-        })
-    }
 
     /**
      * SetEvents - Configuration des événements
@@ -352,8 +302,8 @@ export default class GalleryControls
 
         console.log('Affichage des boutons HTML')
 
-        // Animation d'entrée des boutons
-        gsap.fromTo([this.leftButton, this.rightButton],
+        // Animation d'entrée des boutons HTML
+        gsap.fromTo([this.leftButton, this.rightButton, this.colorButton, this.chooseButton],
             {
                 scale: 0.8,
                 opacity: 0
@@ -362,7 +312,8 @@ export default class GalleryControls
                 scale: 1,
                 opacity: 1,
                 duration: 0.5,
-                ease: 'back.out(1.7)'
+                ease: 'back.out(1.7)',
+                stagger: 0.1
             }
         )
     }
@@ -381,8 +332,8 @@ export default class GalleryControls
 
         this.state.isVisible = false
 
-        // Animation de sortie des boutons
-        gsap.to([this.leftButton, this.rightButton],
+        // Animation de sortie des boutons HTML
+        gsap.to([this.leftButton, this.rightButton, this.colorButton, this.chooseButton],
             {
                 scale: 0.8,
                 opacity: 0,
@@ -411,53 +362,7 @@ export default class GalleryControls
         }
 
         this.state.currentVehicleIndex = _index
-        this.updateIndicators()
-    }
-
-    /**
-     * UpdateIndicators - Mise à jour des indicateurs
-     *
-     * Met à jour l'apparence des indicateurs selon la position actuelle.
-     */
-    updateIndicators()
-    {
-        for(let i = 0; i < this.indicators.length; i++)
-        {
-            const indicator = this.indicators[i]
-            const isActive = i === this.state.currentVehicleIndex
-
-            // Animation de l'indicateur actif
-            if(isActive)
-            {
-                gsap.to(indicator.scale, {
-                    x: 1.5,
-                    y: 1.5,
-                    z: 1.5,
-                    duration: 0.3,
-                    ease: 'back.out(1.7)'
-                })
-
-                gsap.to(indicator.material, {
-                    opacity: 1,
-                    duration: 0.3
-                })
-            }
-            else
-            {
-                gsap.to(indicator.scale, {
-                    x: 1,
-                    y: 1,
-                    z: 1,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                })
-
-                gsap.to(indicator.material, {
-                    opacity: 0.6,
-                    duration: 0.3
-                })
-            }
-        }
+        // Plus d'indicateurs 3D - on utilise seulement les boutons HTML
     }
 
     /**
@@ -537,6 +442,26 @@ export default class GalleryControls
     }
 
     /**
+     * ToggleColorSelector - Basculement du sélecteur de couleurs
+     *
+     * Ouvre ou ferme le sélecteur de couleurs.
+     */
+    toggleColorSelector()
+    {
+        // Cette méthode sera appelée par le parent (VehicleGallery)
+        // qui a accès au colorSelector
+        console.log('🎨 toggleColorSelector appelé, callback disponible:', !!this.onToggleColorSelector)
+        if(this.onToggleColorSelector)
+        {
+            this.onToggleColorSelector()
+        }
+        else
+        {
+            console.warn('❌ onToggleColorSelector callback non défini')
+        }
+    }
+
+    /**
      * Destroy - Destruction des contrôles
      *
      * Nettoie toutes les ressources utilisées par les contrôles.
@@ -548,8 +473,5 @@ export default class GalleryControls
         {
             this.htmlContainer.parentNode.removeChild(this.htmlContainer)
         }
-
-        // Nettoyage du conteneur 3D
-        this.container.clear()
     }
 }
