@@ -371,27 +371,53 @@ export default class VehiclePreview
             // Cloner directement le modèle pour éviter les problèmes avec getConvertedMesh
             const chassisMesh = chassisModel.scene.clone()
             
-            // Appliquer les matcaps avec une approche simplifiée
+            // Appliquer les matcaps selon les noms des enfants
             chassisMesh.traverse((child) => {
                 if(child instanceof THREE.Mesh) {
-                    // Sélection du matcap selon le type de véhicule
+                    // Sélection du matcap selon le nom de l'enfant
                     let matcapTexture = null
                     let matcapName = ''
                     
-                    console.log('🔍 Configuration du véhicule:', tempConfig)
+                    const meshName = child.name.toLowerCase()
                     
-                    if(tempConfig && tempConfig.cyberTruck) {
-                        matcapTexture = this.resources.items.matcapMetalTexture  // Texture métal pour CyberTruck
-                        matcapName = 'Metal'
-                    } else if(tempConfig && tempConfig.dukeHazzard) {
-                        matcapTexture = this.resources.items.matcapOrangeDuckHazzardTexture  // Texture orange pour Duke Hazzard
-                        matcapName = 'Orange'
+                    // Mapping des noms vers les matcaps
+                    if(meshName.includes('chrome')) {
+                        matcapTexture = this.resources.items.matcapChromeTexture
+                        matcapName = 'Chrome'
+                    } else if(meshName.includes('blackmetal')) {
+                        matcapTexture = this.resources.items.matcapBlackMetalTexture
+                        matcapName = 'BlackMetal'
+                    } else if(meshName.includes('orangeduckhazzard')) {
+                        matcapTexture = this.resources.items.matcapOrangeDuckHazzardTexture
+                        matcapName = 'OrangeDuckHazzard'
+                    } else if(meshName.includes('glass')) {
+                        matcapTexture = this.resources.items.matcapGlassTexture
+                        matcapName = 'Glass'
+                    } else if(meshName.includes('black')) {
+                        matcapTexture = this.resources.items.matcapBlackTexture
+                        matcapName = 'Black'
+                    } else if(meshName.includes('white')) {
+                        matcapTexture = this.resources.items.matcapWhiteTexture
+                        matcapName = 'White'
+                    } else if(meshName.includes('yellow')) {
+                        matcapTexture = this.resources.items.matcapYellowTexture
+                        matcapName = 'Yellow'
+                    } else if(meshName.includes('red')) {
+                        matcapTexture = this.resources.items.matcapRedTexture
+                        matcapName = 'Red'
                     } else {
-                        matcapTexture = this.resources.items.matcapGrayTexture  // Texture gris pour la voiture par défaut
-                        matcapName = 'Gray'
+                        // Matcap par défaut selon le type de véhicule
+                        if(tempConfig && tempConfig.cyberTruck) {
+                            matcapTexture = this.resources.items.matcapMetalTexture
+                            matcapName = 'Metal (default)'
+                        } else if(tempConfig && tempConfig.dukeHazzard) {
+                            matcapTexture = this.resources.items.matcapOrangeDuckHazzardTexture
+                            matcapName = 'Orange (default)'
+                        } else {
+                            matcapTexture = this.resources.items.matcapGrayTexture
+                            matcapName = 'Gray (default)'
+                        }
                     }
-                    
-                    console.log('🎯 Matcap sélectionné:', matcapName, 'texture disponible:', !!matcapTexture)
                     
                     if(matcapTexture) {
                         // Créer un matériau matcap simple
@@ -399,9 +425,9 @@ export default class VehiclePreview
                             matcap: matcapTexture 
                         })
                         child.material.needsUpdate = true
-                        console.log('🎨 Matcap appliqué:', matcapTexture.image ? 'texture chargée' : 'texture non chargée')
+                        console.log('🎨 Matcap appliqué:', matcapName, 'sur', child.name)
                     } else {
-                        // Fallback vers un matériau basique avec couleurs distinctes
+                        // Fallback vers un matériau basique
                         let color = 0x888888  // Gris par défaut
                         if(tempConfig && tempConfig.cyberTruck) {
                             color = 0x333333  // Gris foncé pour CyberTruck
@@ -410,7 +436,7 @@ export default class VehiclePreview
                         }
                         child.material = new THREE.MeshBasicMaterial({ color: color })
                         child.material.needsUpdate = true
-                        console.log('🔧 Fallback vers matériau basique:', color.toString(16), 'pour', matcapName)
+                        console.log('🔧 Fallback vers matériau basique:', color.toString(16), 'pour', child.name)
                     }
                 }
             })
